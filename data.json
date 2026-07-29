@@ -1,0 +1,146 @@
+{
+  "title": "Market Stress Dashboard",
+  "date": "July 29, 2026",
+  "dataAsOf": "July 29, 2026 intraday",
+  "composite": {
+    "stressScore": 8.6,
+    "opportunityScore": 8.7,
+    "regime": "Late Cycle / Liquidity Tightening",
+    "regimeTrend": "Deteriorating",
+    "stance": "Patient & Opportunistic",
+    "stanceNote": "Renewed geopolitical tension, rising oil, and higher Treasury yields are increasing the odds of future market dislocations."
+  },
+  "stressDrivers": [
+    { "label": "Rates", "value": 9 },
+    { "label": "Liquidity", "value": 8 },
+    { "label": "Credit", "value": 7 },
+    { "label": "Consumer", "value": 7 },
+    { "label": "Speculation", "value": 8 }
+  ],
+  "sparklines": {
+    "labels": ["90D", "30D", "Today"],
+    "stress": [8.0, 8.7, 8.6],
+    "opportunity": [7.0, 8.1, 8.7]
+  },
+  "trafficLights": [
+    { "label": "Treasury Yields", "status": "red", "trend": "up" },
+    { "label": "Japanese Yields", "status": "red", "trend": "up" },
+    { "label": "Yield Curve", "status": "orange", "trend": "flat" },
+    { "label": "Oil", "status": "red", "trend": "up" },
+    { "label": "Gold", "status": "yellow", "trend": "down" },
+    { "label": "Inflation", "status": "red", "trend": "up" },
+    { "label": "Equity Valuations", "status": "red", "trend": "flat" },
+    { "label": "Market Breadth", "status": "orange", "trend": "down" },
+    { "label": "HY Credit Spreads", "status": "green", "trend": "flat" },
+    { "label": "Liquidity", "status": "red", "trend": "flat" },
+    { "label": "Regional Banks", "status": "yellow", "trend": "flat" },
+    { "label": "Commercial Real Estate", "status": "red", "trend": "up" },
+    { "label": "Consumer Health", "status": "orange", "trend": "up" },
+    { "label": "Consumer Credit", "status": "red", "trend": "up" },
+    { "label": "Corporate Distress", "status": "orange", "trend": "up" },
+    { "label": "Private Credit", "status": "red", "trend": "up" },
+    { "label": "Housing", "status": "red", "trend": "up" },
+    { "label": "Capex Cycle", "status": "green", "trend": "up" },
+    { "label": "IPO / SPAC", "status": "orange", "trend": "up" },
+    { "label": "Insider Buying", "status": "red", "trend": "flat" }
+  ],
+  "whatBreaksFirst": [
+    { "label": "Private Credit", "probability": 32 },
+    { "label": "CRE Refinancing", "probability": 24 },
+    { "label": "Consumer Credit", "probability": 17 },
+    { "label": "AI / Equity Valuation Reset", "probability": 16 },
+    { "label": "Regional Banks", "probability": 11 }
+  ],
+  "opportunity": {
+    "forcedSelling": [
+      { "label": "Grid Infrastructure", "score": 9 },
+      { "label": "Natural Gas Pipelines", "score": 9 },
+      { "label": "Utilities", "score": 9 },
+      { "label": "Water Infrastructure", "score": 8 },
+      { "label": "Industrial Services", "score": 8 },
+      { "label": "Defense Suppliers", "score": 8 },
+      { "label": "CRE Debt", "score": 7 },
+      { "label": "Regional Banks", "score": 6 }
+    ],
+    "buffettMeter": {
+      "fear": 6,
+      "forcedSelling": 5,
+      "opportunity": 9
+    }
+  },
+  "trends": {
+    "headline": [
+      { "label": "Stress / Pressure", "d90": 8.0, "d30": 8.7, "today": 8.6 },
+      { "label": "Opportunity", "d90": 7.0, "d30": 8.1, "today": 8.7, "goodWhenUp": true },
+      { "label": "Treasury Stress", "d90": 7.8, "d30": 9.0, "today": 8.8 },
+      { "label": "Private Credit Stress", "d90": 7.1, "d30": 8.0, "today": 8.3 },
+      { "label": "Consumer Credit Stress", "d90": 6.9, "d30": 7.5, "today": 7.9 },
+      { "label": "Liquidity Stress", "d90": 7.0, "d30": 8.0, "today": 8.0 }
+    ],
+    "rates": [
+      { "label": "US 10Y (%)", "d90": 4.25, "d30": 4.70, "today": 4.64 },
+      { "label": "US 30Y (%)", "d90": 4.75, "d30": 5.17, "today": 5.17 },
+      { "label": "Japan 10Y (%)", "d90": 2.24, "d30": 2.76, "today": 2.82 }
+    ],
+    "credit": [
+      { "label": "HY Spreads (bps)", "d90": 305, "d30": 278, "today": 279 },
+      { "label": "Private Credit Defaults (%)", "d90": 5.1, "d30": 6.0, "today": 6.1 },
+      { "label": "Card Delinquencies (%)", "d90": 3.9, "d30": 4.1, "today": 4.2 }
+    ],
+    "speculation": [
+      { "label": "Concentration", "d90": "High", "d30": "Extreme", "today": "Extreme" },
+      { "label": "IPO Activity", "d90": "Moderate", "d30": "High", "today": "High" },
+      { "label": "Insider Buying", "d90": "Neutral", "d30": "Weak", "today": "Very Weak" }
+    ]
+  },
+  "regimeTracker": {
+    "signals": [
+      { "label": "Treasury Stress", "status": "red" },
+      { "label": "Sovereign / JGB Stress", "status": "red" },
+      { "label": "Private Credit", "status": "red" },
+      { "label": "Consumer Credit", "status": "red" },
+      { "label": "HY Spreads", "status": "green" },
+      { "label": "Unemployment", "status": "green" }
+    ],
+    "now": "Late Cycle / Liquidity Tightening",
+    "prev": "Late Cycle / Stable",
+    "direction": "Renewed Middle East conflict, rising oil, and higher long-term yields have tightened financial conditions despite resilient credit spreads."
+  },
+  "actions": {
+    "doNow": [
+      "Maintain liquidity",
+      "Monitor today's Fed decision and guidance",
+      "Watch Treasury and Japanese bond yields closely",
+      "Track private-credit refinancing and CRE stress",
+      "Continue building watchlists in infrastructure, utilities, pipelines, water, and industrial services"
+    ],
+    "doNotYet": [
+      "Chase speculative AI momentum",
+      "Reach for yield in lower-quality credit",
+      "Assume oil-driven inflation is temporary",
+      "Buy distressed CRE before refinancing resets"
+    ]
+  },
+  "insiderActivity": {
+    "asOf": "Week ending July 24, 2026",
+    "source": "WSJ / LSEG, Dow Jones Market Data",
+    "thresholds": {
+      "greenMaxRatio": 2,
+      "redMinRatio": 12
+    },
+    "sectors": [
+      { "label": "Basic Industries", "buying": 432000, "selling": 2015000 },
+      { "label": "Capital Goods", "buying": 7089000, "selling": 44580000 },
+      { "label": "Consumer Durables", "buying": 138000, "selling": 1695000 },
+      { "label": "Consumer Non-Durables", "buying": 29000, "selling": 8050000 },
+      { "label": "Consumer Services", "buying": 91000, "selling": 194300000 },
+      { "label": "Energy", "buying": 642000, "selling": 7010000 },
+      { "label": "Finance", "buying": 488000, "selling": 111900000 },
+      { "label": "Health Care", "buying": 7760000, "selling": 135400000 },
+      { "label": "Public Utilities", "buying": 0, "selling": 9410000 },
+      { "label": "Technology", "buying": 1148000, "selling": 438700000 },
+      { "label": "Transportation", "buying": 103000, "selling": 18000 }
+    ]
+  },
+  "takeaway": "Renewed Middle East fighting has pushed oil back toward $100 per barrel while Treasury yields moved higher ahead of the Federal Reserve decision, increasing inflation concerns and tightening financial conditions. High-yield credit spreads remain relatively calm, but Japanese yield normalization, private-credit deterioration, consumer-credit weakness, commercial real-estate refinancing risk, and persistent insider selling continue to argue for patience and liquidity while preparing for future forced-selling opportunities."
+}
