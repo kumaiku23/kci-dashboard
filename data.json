@@ -1,146 +1,432 @@
 {
   "title": "Market Stress Dashboard",
   "date": "August 2, 2026",
-  "dataAsOf": "August 1, 2026 market close",
   "composite": {
-    "stressScore": 8.1,
+    "stressScore": 8.7,
     "opportunityScore": 8.8,
-    "regime": "Late Cycle / Liquidity Tightening",
-    "regimeTrend": "Stable",
+    "regime": "Late Cycle",
+    "regimeTrend": "Deteriorating",
     "stance": "Patient & Opportunistic",
-    "stanceNote": "Macro stress remains elevated while market optimism continues to outpace underlying credit fundamentals."
+    "stanceNote": "Maintain liquidity and prepare for credit-driven dislocations"
   },
   "stressDrivers": [
-    { "label": "Rates", "value": 8 },
-    { "label": "Liquidity", "value": 8 },
-    { "label": "Credit", "value": 7 },
-    { "label": "Consumer", "value": 7 },
-    { "label": "Speculation", "value": 8 }
+    {
+      "label": "Rates",
+      "value": 9
+    },
+    {
+      "label": "Liquidity",
+      "value": 8
+    },
+    {
+      "label": "Credit",
+      "value": 8
+    },
+    {
+      "label": "Consumer",
+      "value": 7
+    },
+    {
+      "label": "Speculation",
+      "value": 9
+    }
   ],
   "sparklines": {
-    "labels": ["90D", "30D", "Today"],
-    "stress": [8.0, 8.5, 8.1],
-    "opportunity": [7.1, 8.2, 8.8]
+    "labels": [
+      "90D",
+      "30D",
+      "Today"
+    ],
+    "stress": [
+      8,
+      8.4,
+      8.7
+    ],
+    "opportunity": [
+      7.1,
+      8.2,
+      8.8
+    ]
   },
   "trafficLights": [
-    { "label": "Treasury Yields", "status": "orange", "trend": "down" },
-    { "label": "Japanese Yields", "status": "red", "trend": "up" },
-    { "label": "Yield Curve", "status": "orange", "trend": "flat" },
-    { "label": "Oil", "status": "yellow", "trend": "down" },
-    { "label": "Gold", "status": "yellow", "trend": "up" },
-    { "label": "Inflation", "status": "orange", "trend": "down" },
-    { "label": "Equity Valuations", "status": "red", "trend": "up" },
-    { "label": "Market Breadth", "status": "green", "trend": "up" },
-    { "label": "HY Credit Spreads", "status": "green", "trend": "flat" },
-    { "label": "Liquidity", "status": "orange", "trend": "flat" },
-    { "label": "Regional Banks", "status": "yellow", "trend": "flat" },
-    { "label": "Commercial Real Estate", "status": "red", "trend": "up" },
-    { "label": "Consumer Health", "status": "orange", "trend": "up" },
-    { "label": "Consumer Credit", "status": "red", "trend": "up" },
-    { "label": "Corporate Distress", "status": "orange", "trend": "up" },
-    { "label": "Private Credit", "status": "red", "trend": "up" },
-    { "label": "Housing", "status": "red", "trend": "flat" },
-    { "label": "Capex Cycle", "status": "green", "trend": "up" },
-    { "label": "IPO / SPAC", "status": "orange", "trend": "up" },
-    { "label": "Insider Buying", "status": "red", "trend": "flat" }
+    {
+      "label": "Treasury Yields",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Japanese Yields",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Yield Curve",
+      "status": "orange",
+      "trend": "up"
+    },
+    {
+      "label": "Oil",
+      "status": "orange",
+      "trend": "down"
+    },
+    {
+      "label": "Gold",
+      "status": "yellow",
+      "trend": "flat"
+    },
+    {
+      "label": "Inflation",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Equity Valuations",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Market Breadth",
+      "status": "orange",
+      "trend": "down"
+    },
+    {
+      "label": "HY Credit Spreads",
+      "status": "yellow",
+      "trend": "up"
+    },
+    {
+      "label": "Liquidity",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Regional Banks",
+      "status": "yellow",
+      "trend": "flat"
+    },
+    {
+      "label": "Commercial Real Estate",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Consumer Health",
+      "status": "orange",
+      "trend": "up"
+    },
+    {
+      "label": "Consumer Credit",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Corporate Distress",
+      "status": "orange",
+      "trend": "up"
+    },
+    {
+      "label": "Private Credit",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Housing",
+      "status": "red",
+      "trend": "up"
+    },
+    {
+      "label": "Capex Cycle",
+      "status": "green",
+      "trend": "up"
+    },
+    {
+      "label": "IPO / SPAC",
+      "status": "orange",
+      "trend": "up"
+    },
+    {
+      "label": "Insider Buying",
+      "status": "red",
+      "trend": "up"
+    }
   ],
   "whatBreaksFirst": [
-    { "label": "Private Credit", "probability": 31 },
-    { "label": "CRE Refinancing", "probability": 24 },
-    { "label": "Consumer Credit", "probability": 18 },
-    { "label": "AI / Valuation Reset", "probability": 16 },
-    { "label": "Regional Banks", "probability": 11 }
+    {
+      "label": "Private Credit",
+      "probability": 33
+    },
+    {
+      "label": "CRE Refinancing",
+      "probability": 26
+    },
+    {
+      "label": "Consumer Credit",
+      "probability": 16
+    },
+    {
+      "label": "Regional Banks",
+      "probability": 12
+    },
+    {
+      "label": "Valuation Reset",
+      "probability": 13
+    }
   ],
   "opportunity": {
     "forcedSelling": [
-      { "label": "Grid Infrastructure", "score": 9 },
-      { "label": "Natural Gas Pipelines", "score": 9 },
-      { "label": "Utilities", "score": 9 },
-      { "label": "Water Infrastructure", "score": 8 },
-      { "label": "Industrial Services", "score": 8 },
-      { "label": "Defense Suppliers", "score": 8 },
-      { "label": "CRE Debt", "score": 7 },
-      { "label": "Regional Banks", "score": 6 }
+      {
+        "label": "Grid Infrastructure",
+        "score": 9
+      },
+      {
+        "label": "Natural Gas Pipelines",
+        "score": 9
+      },
+      {
+        "label": "Utilities",
+        "score": 9
+      },
+      {
+        "label": "Water Infrastructure",
+        "score": 8
+      },
+      {
+        "label": "Defense Suppliers",
+        "score": 8
+      },
+      {
+        "label": "Industrial Services",
+        "score": 8
+      },
+      {
+        "label": "CRE Debt",
+        "score": 8
+      },
+      {
+        "label": "Regional Banks",
+        "score": 6
+      }
     ],
     "buffettMeter": {
-      "fear": 5,
+      "fear": 6,
       "forcedSelling": 5,
       "opportunity": 9
     }
   },
   "trends": {
     "headline": [
-      { "label": "Stress / Pressure", "d90": 8.0, "d30": 8.5, "today": 8.1 },
-      { "label": "Opportunity", "d90": 7.1, "d30": 8.2, "today": 8.8, "goodWhenUp": true },
-      { "label": "Treasury Stress", "d90": 7.8, "d30": 8.8, "today": 8.2 },
-      { "label": "Private Credit Stress", "d90": 7.1, "d30": 8.0, "today": 8.3 },
-      { "label": "Consumer Credit Stress", "d90": 6.9, "d30": 7.5, "today": 8.0 },
-      { "label": "Liquidity Stress", "d90": 7.0, "d30": 8.0, "today": 7.9 }
+      {
+        "label": "Stress / Pressure",
+        "d90": 8,
+        "d30": 8.4,
+        "today": 8.7
+      },
+      {
+        "label": "Opportunity",
+        "d90": 7.1,
+        "d30": 8.2,
+        "today": 8.8,
+        "goodWhenUp": true
+      },
+      {
+        "label": "Treasury Stress",
+        "d90": 7.8,
+        "d30": 8.5,
+        "today": 9.1
+      },
+      {
+        "label": "Private Credit Stress",
+        "d90": 7.2,
+        "d30": 8,
+        "today": 8.4
+      },
+      {
+        "label": "Consumer Credit Stress",
+        "d90": 6.9,
+        "d30": 7.6,
+        "today": 8
+      },
+      {
+        "label": "Liquidity Stress",
+        "d90": 7,
+        "d30": 8,
+        "today": 8.3
+      }
     ],
     "rates": [
-      { "label": "US 10Y (%)", "d90": 4.26, "d30": 4.66, "today": 4.53 },
-      { "label": "US 30Y (%)", "d90": 4.77, "d30": 5.14, "today": 5.03 },
-      { "label": "Japan 10Y (%)", "d90": 2.25, "d30": 2.79, "today": 2.86 }
+      {
+        "label": "US 10Y (%)",
+        "d90": 4.26,
+        "d30": 4.5,
+        "today": 4.74
+      },
+      {
+        "label": "US 30Y (%)",
+        "d90": 4.77,
+        "d30": 5.02,
+        "today": 5.18
+      },
+      {
+        "label": "Japan 10Y (%)",
+        "d90": 2.25,
+        "d30": 2.7,
+        "today": 2.8
+      }
     ],
     "credit": [
-      { "label": "HY Spreads (bps)", "d90": 307, "d30": 279, "today": 276 },
-      { "label": "Private Credit Defaults (%)", "d90": 5.1, "d30": 6.0, "today": 6.2 },
-      { "label": "Card Delinquencies (%)", "d90": 3.9, "d30": 4.1, "today": 4.3 }
+      {
+        "label": "HY Spreads (bps)",
+        "d90": 307,
+        "d30": 276,
+        "today": 287
+      },
+      {
+        "label": "Private Credit Defaults (%)",
+        "d90": 5.1,
+        "d30": 6,
+        "today": 6.2
+      },
+      {
+        "label": "Card Delinquencies (%)",
+        "d90": 3.9,
+        "d30": 4.1,
+        "today": 4.3
+      }
     ],
     "speculation": [
-      { "label": "Concentration", "d90": "High", "d30": "Extreme", "today": "Extreme" },
-      { "label": "IPO Activity", "d90": "Moderate", "d30": "High", "today": "High" },
-      { "label": "Insider Buying", "d90": "Neutral", "d30": "Weak", "today": "Very Weak" }
+      {
+        "label": "Concentration",
+        "d90": "High",
+        "d30": "Extreme",
+        "today": "Extreme"
+      },
+      {
+        "label": "IPO Activity",
+        "d90": "Moderate",
+        "d30": "High",
+        "today": "High"
+      },
+      {
+        "label": "Insider Buying",
+        "d90": "Weak",
+        "d30": "Very Weak",
+        "today": "Extreme Selling"
+      }
     ]
   },
   "regimeTracker": {
     "signals": [
-      { "label": "Treasury Stress", "status": "orange" },
-      { "label": "Sovereign / JGB Stress", "status": "red" },
-      { "label": "Private Credit", "status": "red" },
-      { "label": "Consumer Credit", "status": "red" },
-      { "label": "HY Spreads", "status": "green" },
-      { "label": "Unemployment", "status": "green" }
+      {
+        "label": "Treasury Stress",
+        "status": "red"
+      },
+      {
+        "label": "Sovereign / JGB Stress",
+        "status": "red"
+      },
+      {
+        "label": "Private Credit",
+        "status": "red"
+      },
+      {
+        "label": "Consumer Credit",
+        "status": "red"
+      },
+      {
+        "label": "HY Spreads",
+        "status": "yellow"
+      },
+      {
+        "label": "Unemployment",
+        "status": "green"
+      }
     ],
-    "now": "Late Cycle / Liquidity Tightening",
+    "now": "Late Cycle",
     "prev": "Late Cycle / Liquidity Tightening",
-    "direction": "Lower Treasury yields have eased immediate pressure, but structural risks remain concentrated in Japan, private credit, commercial real estate, and consumer balance sheets."
+    "direction": "Moving toward a credit and valuation repricing event"
   },
   "actions": {
+    "doNowLabel": "Worth Watching",
+    "doNotYetLabel": "Worth Avoiding",
     "doNow": [
       "Maintain liquidity",
-      "Monitor BOJ policy normalization",
-      "Track private-credit refinancing and default trends",
-      "Watch commercial real-estate refinancing",
-      "Continue building watchlists in infrastructure, utilities, pipelines, industrials, and water infrastructure"
+      "Monitor long-term Treasury yields",
+      "Track BOJ policy and yen intervention",
+      "Watch private-credit defaults and fund redemptions",
+      "Study CRE debt and regional-bank balance sheets"
     ],
     "doNotYet": [
-      "Chase speculative AI leaders",
-      "Reach for yield in lower-quality credit",
-      "Assume falling inflation eliminates refinancing risk",
-      "Buy distressed CRE before repricing is complete"
+      "Chase crowded AI momentum",
+      "Reach for yield in weak credit",
+      "Buy distressed CRE before refinancing resets values",
+      "Assume tight high-yield spreads mean systemic risk is low"
     ]
   },
   "insiderActivity": {
-    "asOf": "Week ending August 1, 2026",
-    "source": "WSJ / LSEG, Dow Jones Market Data",
+    "asOf": "Latest reported week ending July 24, 2026",
+    "source": "WSJ / LSEG, Dow Jones Market Data; broader July insider-sentiment data",
     "thresholds": {
       "greenMaxRatio": 2,
       "redMinRatio": 12
     },
     "sectors": [
-      { "label": "Basic Industries", "buying": 451200, "selling": 2148000 },
-      { "label": "Capital Goods", "buying": 7364000, "selling": 46890000 },
-      { "label": "Consumer Durables", "buying": 151700, "selling": 1756000 },
-      { "label": "Consumer Non-Durables", "buying": 31400, "selling": 8234000 },
-      { "label": "Consumer Services", "buying": 103500, "selling": 201800000 },
-      { "label": "Energy", "buying": 682900, "selling": 7345000 },
-      { "label": "Finance", "buying": 522400, "selling": 115600000 },
-      { "label": "Health Care", "buying": 8015000, "selling": 139200000 },
-      { "label": "Public Utilities", "buying": 0, "selling": 9586000 },
-      { "label": "Technology", "buying": 1193000, "selling": 447800000 },
-      { "label": "Transportation", "buying": 112400, "selling": 22300 }
+      {
+        "label": "Basic Industries",
+        "buying": 432000,
+        "selling": 2015000
+      },
+      {
+        "label": "Capital Goods",
+        "buying": 7089000,
+        "selling": 44580000
+      },
+      {
+        "label": "Consumer Durables",
+        "buying": 138000,
+        "selling": 1695000
+      },
+      {
+        "label": "Consumer Non-Durables",
+        "buying": 29000,
+        "selling": 8050000
+      },
+      {
+        "label": "Consumer Services",
+        "buying": 91000,
+        "selling": 194300000
+      },
+      {
+        "label": "Energy",
+        "buying": 642000,
+        "selling": 7010000
+      },
+      {
+        "label": "Finance",
+        "buying": 488000,
+        "selling": 111900000
+      },
+      {
+        "label": "Health Care",
+        "buying": 7760000,
+        "selling": 135400000
+      },
+      {
+        "label": "Public Utilities",
+        "buying": 0,
+        "selling": 9410000
+      },
+      {
+        "label": "Technology",
+        "buying": 1148000,
+        "selling": 438700000
+      },
+      {
+        "label": "Transportation",
+        "buying": 103000,
+        "selling": 18000
+      }
     ]
   },
-  "takeaway": "Headline conditions have improved modestly as Treasury yields and oil prices retreated, but the underlying late-cycle risks have not materially changed. Japanese monetary normalization, private-credit refinancing, commercial real-estate stress, consumer-credit deterioration, and persistent insider selling remain the most likely sources of future market dislocations. Continue emphasizing durable cash-flow businesses and prepare capital for opportunities created by forced selling."
+  "takeaway": "Systemic pressure increased into the end of July as long-term Treasury yields reached multi-year highs, the BOJ maintained a hawkish normalization bias, and commercial real-estate delinquencies rose sharply. High-yield spreads remain contained and labor markets remain resilient, so a broad credit event has not begun. Extreme insider selling, elevated AI valuations, private-credit stress and deteriorating consumer credit argue for maintaining liquidity and preparing for dislocations rather than deploying aggressively.",
+  "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
