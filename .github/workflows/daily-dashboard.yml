@@ -1,0 +1,98 @@
+name: Daily Market Stress Dashboard
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 1:30 PM America/Los_Angeles. UTC shifts with daylight saving time.
+    - cron: "30 20 * * 1-5"
+    - cron: "30 21 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-dashboard-main
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check schedule window
+        id: schedule
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          LOCAL_TIME="$(TZ=America/Los_Angeles date +%H:%M)"
+          if [ "$LOCAL_TIME" = "13:30" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping: local time is $LOCAL_TIME in America/Los_Angeles."
+          fi
+
+      - name: Check out main
+        if: steps.schedule.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        if: steps.schedule.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Generate dashboard
+        if: steps.schedule.outputs.run == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/generate-dashboard.mjs
+
+      - name: Verify data.json
+        if: steps.schedule.outputs.run == 'true'
+        run: node -e "const fs=require('fs'); JSON.parse(fs.readFileSync('data.json','utf8'));"
+
+      - name: Summarize report
+        if: steps.schedule.outputs.run == 'true'
+        id: report
+        run: |
+          REPORT_DATE="$(node -e "const d=require('./data.json'); console.log(d.date)")"
+          STRESS_SCORE="$(node -e "const d=require('./data.json'); console.log(d.composite.stressScore)")"
+          ISO_DATE="$(TZ=America/Los_Angeles date +%F)"
+          echo "date=$ISO_DATE" >> "$GITHUB_OUTPUT"
+          echo "Report date: $REPORT_DATE"
+          echo "Stress score: $STRESS_SCORE"
+          {
+            echo "### Market Stress Dashboard"
+            echo "- Report date: $REPORT_DATE"
+            echo "- Stress score: $STRESS_SCORE"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push changes
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          if git diff --quiet -- data.json history/index.json history/*.json; then
+            echo "No dashboard changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json history/index.json history/*.json
+          git commit -m "Publish dashboard ${{ steps.report.outputs.date }}"
+          git push origin main

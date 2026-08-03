@@ -4,3 +4,4 @@ publish.sh
 _print_template.html
 archive.sh
 archive.html
+node_modules/

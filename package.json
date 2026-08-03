@@ -1,0 +1,13 @@
+{
+  "name": "kci-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:dashboard": "node scripts/generate-dashboard.mjs",
+    "validate:data": "node scripts/generate-dashboard.mjs --validate-current"
+  },
+  "dependencies": {
+    "openai": "^5.12.2"
+  }
+}
