@@ -12,12 +12,16 @@ permissions:
 
 concurrency:
   group: daily-dashboard-main
-  cancel-in-progress: false
+  cancel-in-progress: true
+
+env:
+  TZ: America/Los_Angeles
 
 jobs:
   publish:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Check schedule window
         id: schedule
@@ -27,7 +31,7 @@ jobs:
             exit 0
           fi
 
-          LOCAL_TIME="$(TZ=America/Los_Angeles date +%H:%M)"
+          LOCAL_TIME="$(date +%H:%M)"
           if [ "$LOCAL_TIME" = "13:30" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
@@ -61,38 +65,166 @@ jobs:
         if: steps.schedule.outputs.run == 'true'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node scripts/generate-dashboard.mjs
-
-      - name: Verify data.json
-        if: steps.schedule.outputs.run == 'true'
-        run: node -e "const fs=require('fs'); JSON.parse(fs.readFileSync('data.json','utf8'));"
-
-      - name: Summarize report
-        if: steps.schedule.outputs.run == 'true'
-        id: report
         run: |
-          REPORT_DATE="$(node -e "const d=require('./data.json'); console.log(d.date)")"
-          STRESS_SCORE="$(node -e "const d=require('./data.json'); console.log(d.composite.stressScore)")"
-          ISO_DATE="$(TZ=America/Los_Angeles date +%F)"
-          echo "date=$ISO_DATE" >> "$GITHUB_OUTPUT"
-          echo "Report date: $REPORT_DATE"
-          echo "Stress score: $STRESS_SCORE"
-          {
-            echo "### Market Stress Dashboard"
-            echo "- Report date: $REPORT_DATE"
-            echo "- Stress score: $STRESS_SCORE"
-          } >> "$GITHUB_STEP_SUMMARY"
+          cp data.json "$RUNNER_TEMP/data.json.before"
+          if [ -d history ]; then
+            cp -R history "$RUNNER_TEMP/history.before"
+          fi
+
+          for attempt in 1 2 3; do
+            echo "Dashboard generation attempt $attempt of 3"
+            if node scripts/generate-dashboard.mjs 2>&1 | tee "$RUNNER_TEMP/generate-dashboard-attempt-$attempt.log"; then
+              echo "Dashboard generation succeeded on attempt $attempt."
+              exit 0
+            fi
+
+            cp "$RUNNER_TEMP/data.json.before" data.json
+            if [ -d "$RUNNER_TEMP/history.before" ]; then
+              rm -rf history
+              cp -R "$RUNNER_TEMP/history.before" history
+            else
+              rm -rf history
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              echo "Dashboard generation failed on attempt $attempt; retrying in 30 seconds."
+              sleep 30
+            fi
+          done
+
+          echo "::error::Dashboard generation failed after 3 attempts. Restored existing data.json; no partial files will be committed."
+          exit 1
+
+      - name: Validate generated files
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+          const dashboard = JSON.parse(fs.readFileSync("data.json", "utf8"));
+          const isoDate = new Intl.DateTimeFormat("en-CA", {
+            timeZone: "America/Los_Angeles",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+          }).format(new Date());
+          const historyFile = `history/${isoDate}.json`;
+          if (!fs.existsSync(historyFile)) {
+            throw new Error(`${historyFile} does not exist`);
+          }
+          const index = JSON.parse(fs.readFileSync("history/index.json", "utf8"));
+          if (!Array.isArray(index) || !index.includes(isoDate)) {
+            throw new Error("history/index.json does not contain today's date");
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `iso_date=${isoDate}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `history_file=${historyFile}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `report_date=${dashboard.date}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `stress_score=${dashboard.composite.stressScore}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `opportunity_score=${dashboard.composite.opportunityScore}\n`);
+          console.log(`Validated ${historyFile} for ${dashboard.date}.`);
+          NODE
+        id: validate
+
+      - name: Generate PDF artifact
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          mkdir -p artifacts
+          python3 -m http.server 8080 > "$RUNNER_TEMP/dashboard-http.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          if command -v google-chrome >/dev/null; then
+            google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf="artifacts/market-stress-dashboard-${{ steps.validate.outputs.iso_date }}.pdf" http://127.0.0.1:8080/
+          elif command -v chromium-browser >/dev/null; then
+            chromium-browser --headless --disable-gpu --no-sandbox --print-to-pdf="artifacts/market-stress-dashboard-${{ steps.validate.outputs.iso_date }}.pdf" http://127.0.0.1:8080/
+          else
+            echo "::warning::No headless Chrome binary found; generated PDF artifact will be unavailable."
+          fi
+
+      - name: Print git status and diff
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          git status
+          git diff --stat
 
       - name: Commit and push changes
         if: steps.schedule.outputs.run == 'true'
+        id: report
         run: |
           if git diff --quiet -- data.json history/index.json history/*.json; then
             echo "No dashboard changes to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json history/index.json history/*.json
-          git commit -m "Publish dashboard ${{ steps.report.outputs.date }}"
+          git commit -m "Publish dashboard ${{ steps.validate.outputs.iso_date }}"
           git push origin main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare workflow artifacts
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          mkdir -p artifacts
+          cp data.json artifacts/data.json
+          cp "${{ steps.validate.outputs.history_file }}" "artifacts/${{ steps.validate.outputs.iso_date }}.json"
+          {
+            echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            for log in "$RUNNER_TEMP"/generate-dashboard-attempt-*.log "$RUNNER_TEMP"/dashboard-http.log; do
+              if [ -f "$log" ]; then
+                echo
+                echo "===== $(basename "$log") ====="
+                cat "$log"
+              fi
+            done
+          } > artifacts/workflow.log
+          if [ ! -s artifacts/workflow.log ] && [ -n "${GITHUB_RUN_ID:-}" ]; then
+            {
+              echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+              echo "Full workflow log is available in GitHub Actions."
+            } > artifacts/workflow.log
+          fi
+
+      - name: Upload dashboard artifacts
+        if: steps.schedule.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-stress-dashboard-${{ steps.validate.outputs.iso_date }}
+          path: artifacts/
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Publish summary
+        if: steps.schedule.outputs.run == 'true'
+        run: |
+          echo "Commit SHA: ${{ steps.report.outputs.sha }}"
+          echo "Report date: ${{ steps.validate.outputs.report_date }}"
+          echo "Stress score: ${{ steps.validate.outputs.stress_score }}"
+          echo "Opportunity score: ${{ steps.validate.outputs.opportunity_score }}"
+          echo "History filename: ${{ steps.validate.outputs.history_file }}"
+          {
+            echo "### Market Stress Dashboard"
+            echo "- Commit SHA: ${{ steps.report.outputs.sha }}"
+            echo "- Report date: ${{ steps.validate.outputs.report_date }}"
+            echo "- Stress score: ${{ steps.validate.outputs.stress_score }}"
+            echo "- Opportunity score: ${{ steps.validate.outputs.opportunity_score }}"
+            echo "- History filename: ${{ steps.validate.outputs.history_file }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Final status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Dashboard Published Successfully"
+          else
+            echo "❌ Dashboard Publish Failed"
+          fi
