@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "generate:dashboard": "node scripts/generate-dashboard.mjs",
-    "validate:data": "node scripts/generate-dashboard.mjs --validate-current"
+    "validate:data": "node scripts/generate-dashboard.mjs --validate-current",
+    "test": "node --test"
   },
   "dependencies": {
     "openai": "^5.12.2"

@@ -94,11 +94,14 @@ function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-function inferSchema(value) {
+export function inferSchema(value) {
   if (Array.isArray(value)) {
     return {
       type: "array",
-      items: value.length > 0 ? inferSchema(value[0]) : {}
+      prefixItems: value.map((item) => inferSchema(item)),
+      items: false,
+      minItems: value.length,
+      maxItems: value.length
     };
   }
 
@@ -451,7 +454,9 @@ async function main() {
   console.log(`Published dashboard ${reportDate.iso}: stress score ${candidate.composite.stressScore}`);
 }
 
-main().catch((error) => {
-  console.error(`Dashboard generation failed: ${error.message}`);
-  process.exitCode = 1;
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error) => {
+    console.error(`Dashboard generation failed: ${error.message}`);
+    process.exitCode = 1;
+  });
+}
