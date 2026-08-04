@@ -219,7 +219,8 @@
         "label": "Stress / Pressure",
         "d90": 8.0,
         "d30": 8.5,
-        "today": 8.1
+        "today": 8.1,
+        "goodWhenUp": false
       },
       {
         "label": "Opportunity",
@@ -232,25 +233,29 @@
         "label": "Treasury Stress",
         "d90": 7.8,
         "d30": 8.8,
-        "today": 8.2
+        "today": 8.2,
+        "goodWhenUp": false
       },
       {
         "label": "Private Credit Stress",
         "d90": 7.1,
         "d30": 8.0,
-        "today": 8.3
+        "today": 8.3,
+        "goodWhenUp": false
       },
       {
         "label": "Consumer Credit Stress",
         "d90": 6.9,
         "d30": 7.5,
-        "today": 8.0
+        "today": 8.0,
+        "goodWhenUp": false
       },
       {
         "label": "Liquidity Stress",
         "d90": 7.0,
         "d30": 8.0,
-        "today": 7.9
+        "today": 7.9,
+        "goodWhenUp": false
       }
     ],
     "rates": [

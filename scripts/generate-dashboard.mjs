@@ -94,14 +94,27 @@ function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+export function normalizeDashboardForSchema(dashboard) {
+  const normalized = structuredClone(dashboard);
+
+  if (Array.isArray(normalized.trends?.headline)) {
+    normalized.trends.headline = normalized.trends.headline.map((row) => ({
+      label: row.label,
+      d90: row.d90,
+      d30: row.d30,
+      today: row.today,
+      goodWhenUp: row.label === "Opportunity"
+    }));
+  }
+
+  return normalized;
+}
+
 export function inferSchema(value) {
   if (Array.isArray(value)) {
     return {
       type: "array",
-      prefixItems: value.map((item) => inferSchema(item)),
-      items: false,
-      minItems: value.length,
-      maxItems: value.length
+      items: value.length > 0 ? inferSchema(value[0]) : {}
     };
   }
 
@@ -430,7 +443,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = path.resolve(args.root);
   const dataPath = path.join(root, "data.json");
-  const prior = await readJson(dataPath);
+  const prior = normalizeDashboardForSchema(await readJson(dataPath));
   const reportDate = getReportDate(args.reportDate);
 
   if (args.validateCurrent) {

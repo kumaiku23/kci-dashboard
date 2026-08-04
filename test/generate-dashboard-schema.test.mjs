@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { inferSchema } from "../scripts/generate-dashboard.mjs";
+import { inferSchema, normalizeDashboardForSchema } from "../scripts/generate-dashboard.mjs";
 
 async function currentDashboard() {
   return JSON.parse(await readFile(new URL("../data.json", import.meta.url), "utf8"));
@@ -44,15 +44,8 @@ function validateAgainstSchema(schema, value, path = "") {
       fail("expected array");
       return errors;
     }
-    if (typeof schema.minItems === "number" && value.length < schema.minItems) fail("too few items");
-    if (typeof schema.maxItems === "number" && value.length > schema.maxItems) fail("too many items");
-    if (schema.items === false && schema.prefixItems && value.length > schema.prefixItems.length) {
-      fail("unexpected array item");
-    }
-    schema.prefixItems?.forEach((childSchema, index) => {
-      if (index in value) {
-        errors.push(...validateAgainstSchema(childSchema, value[index], `${path}/${index}`));
-      }
+    value.forEach((item, index) => {
+      errors.push(...validateAgainstSchema(schema.items, item, `${path}/${index}`));
     });
     return errors;
   }
@@ -63,25 +56,44 @@ function validateAgainstSchema(schema, value, path = "") {
   return errors;
 }
 
-test("dashboard array schema preserves position-specific object fields", async () => {
-  const dashboard = await currentDashboard();
-  const schema = inferSchema(dashboard);
-  const headlineItems = schema.properties.trends.properties.headline.prefixItems;
+test("every trends.headline row has identical keys", async () => {
+  const dashboard = normalizeDashboardForSchema(await currentDashboard());
+  const expectedKeys = ["label", "d90", "d30", "today", "goodWhenUp"];
 
-  assert.equal(headlineItems.length, dashboard.trends.headline.length);
-  assert.ok(headlineItems[1].properties.goodWhenUp);
-  assert.deepEqual(headlineItems[1].required, ["label", "d90", "d30", "today", "goodWhenUp"]);
+  dashboard.trends.headline.forEach((row) => {
+    assert.deepEqual(Object.keys(row), expectedKeys);
+  });
+});
+
+test("trends.headline goodWhenUp is true only for Opportunity", async () => {
+  const dashboard = normalizeDashboardForSchema(await currentDashboard());
+
+  dashboard.trends.headline.forEach((row) => {
+    assert.equal(row.goodWhenUp, row.label === "Opportunity");
+  });
+});
+
+test("generated OpenAI schema uses object items and no prefixItems", async () => {
+  const dashboard = normalizeDashboardForSchema(await currentDashboard());
+  const schema = inferSchema(dashboard);
+  const headlineSchema = schema.properties.trends.properties.headline;
+
+  assert.equal(headlineSchema.type, "array");
+  assert.equal(typeof headlineSchema.items, "object");
+  assert.equal("prefixItems" in headlineSchema, false);
+  assert.ok(headlineSchema.items.properties.goodWhenUp);
+  assert.deepEqual(headlineSchema.items.required, ["label", "d90", "d30", "today", "goodWhenUp"]);
 });
 
 test("generated schema accepts the current data.json", async () => {
-  const dashboard = await currentDashboard();
+  const dashboard = normalizeDashboardForSchema(await currentDashboard());
   const errors = validateAgainstSchema(inferSchema(dashboard), dashboard);
 
   assert.deepEqual(errors, []);
 });
 
 test("generated schema rejects missing position-specific fields", async () => {
-  const dashboard = await currentDashboard();
+  const dashboard = normalizeDashboardForSchema(await currentDashboard());
   const candidate = structuredClone(dashboard);
   delete candidate.trends.headline[1].goodWhenUp;
   const errors = validateAgainstSchema(inferSchema(dashboard), candidate);
@@ -90,7 +102,7 @@ test("generated schema rejects missing position-specific fields", async () => {
 });
 
 test("generated schema rejects unexpected keys", async () => {
-  const dashboard = await currentDashboard();
+  const dashboard = normalizeDashboardForSchema(await currentDashboard());
   const candidate = structuredClone(dashboard);
   candidate.trends.headline[1].unexpected = true;
   const errors = validateAgainstSchema(inferSchema(dashboard), candidate);
