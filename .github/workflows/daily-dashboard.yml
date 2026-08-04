@@ -31,12 +31,14 @@ jobs:
             exit 0
           fi
 
-          LOCAL_TIME="$(date +%H:%M)"
-          if [ "$LOCAL_TIME" = "13:30" ]; then
+          SCHEDULE="${{ github.event.schedule }}"
+          LOCAL_ZONE="$(date +%Z)"
+          if { [ "$SCHEDULE" = "30 20 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
+             { [ "$SCHEDULE" = "30 21 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping: local time is $LOCAL_TIME in America/Los_Angeles."
+            echo "Skipping duplicate daylight-saving schedule: $SCHEDULE fired while America/Los_Angeles is $LOCAL_ZONE."
           fi
 
       - name: Check out main
