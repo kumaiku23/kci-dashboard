@@ -97,39 +97,20 @@ jobs:
           echo "::error::Dashboard generation failed after 3 attempts. Restored existing data.json; no partial files will be committed."
           exit 1
 
-      - name: Validate generated files
+      - name: Stale-dashboard watchdog
         if: steps.schedule.outputs.run == 'true'
-        run: |
-          node - <<'NODE'
-          const fs = require("fs");
-          const dashboard = JSON.parse(fs.readFileSync("data.json", "utf8"));
-          const isoDate = new Intl.DateTimeFormat("en-CA", {
-            timeZone: "America/Los_Angeles",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-          }).format(new Date());
-          const historyFile = `history/${isoDate}.json`;
-          if (!fs.existsSync(historyFile)) {
-            throw new Error(`${historyFile} does not exist`);
-          }
-          const index = JSON.parse(fs.readFileSync("history/index.json", "utf8"));
-          if (!Array.isArray(index) || !index.includes(isoDate)) {
-            throw new Error("history/index.json does not contain today's date");
-          }
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `iso_date=${isoDate}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `history_file=${historyFile}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `report_date=${dashboard.date}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `stress_score=${dashboard.composite.stressScore}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `opportunity_score=${dashboard.composite.opportunityScore}\n`);
-          console.log(`Validated ${historyFile} for ${dashboard.date}.`);
-          NODE
+        run: node scripts/validate-dashboard-run.mjs
         id: validate
 
       - name: Generate PDF artifact
         if: steps.schedule.outputs.run == 'true'
+        id: pdf
         run: |
           mkdir -p artifacts
+          PDF_FILE="market-stress-dashboard-${{ steps.validate.outputs.iso_date }}.pdf"
+          PDF_PATH="artifacts/$PDF_FILE"
+          echo "pdf_file=$PDF_FILE" >> "$GITHUB_OUTPUT"
+          echo "pdf_path=$PDF_PATH" >> "$GITHUB_OUTPUT"
           python3 -m http.server 8080 > "$RUNNER_TEMP/dashboard-http.log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
@@ -141,12 +122,36 @@ jobs:
           done
 
           if command -v google-chrome >/dev/null; then
-            google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf="artifacts/market-stress-dashboard-${{ steps.validate.outputs.iso_date }}.pdf" http://127.0.0.1:8080/
+            google-chrome --headless --disable-gpu --no-sandbox --print-to-pdf="$PDF_PATH" http://127.0.0.1:8080/
           elif command -v chromium-browser >/dev/null; then
-            chromium-browser --headless --disable-gpu --no-sandbox --print-to-pdf="artifacts/market-stress-dashboard-${{ steps.validate.outputs.iso_date }}.pdf" http://127.0.0.1:8080/
+            chromium-browser --headless --disable-gpu --no-sandbox --print-to-pdf="$PDF_PATH" http://127.0.0.1:8080/
           else
-            echo "::warning::No headless Chrome binary found; generated PDF artifact will be unavailable."
+            echo "::error::No headless Chrome binary found; PDF generation failed."
+            exit 1
           fi
+
+          node scripts/validate-pdf.mjs "$PDF_PATH"
+
+      - name: Upload PDF to Google Drive
+        if: steps.schedule.outputs.run == 'true'
+        id: drive
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: |
+          for attempt in 1 2 3; do
+            echo "Google Drive upload attempt $attempt of 3"
+            if node scripts/upload-pdf-to-drive.mjs "${{ steps.pdf.outputs.pdf_path }}"; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Google Drive upload failed on attempt $attempt; retrying in 20 seconds."
+              sleep 20
+            fi
+          done
+
+          echo "::error::Google Drive upload failed after 3 attempts."
+          exit 1
 
       - name: Print git status and diff
         if: steps.schedule.outputs.run == 'true'
@@ -162,6 +167,7 @@ jobs:
             echo "No dashboard changes to commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "heartbeat_status=skipped" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -170,8 +176,24 @@ jobs:
           git add data.json history/index.json history/*.json
           git commit -m "Publish dashboard ${{ steps.validate.outputs.iso_date }}"
           git push origin main
+          DASHBOARD_SHA="$(git rev-parse HEAD)"
+
+          node scripts/write-heartbeat.mjs \
+            --report-date "${{ steps.validate.outputs.report_date }}" \
+            --stress-score "${{ steps.validate.outputs.stress_score }}" \
+            --opportunity-score "${{ steps.validate.outputs.opportunity_score }}" \
+            --commit "$DASHBOARD_SHA" \
+            --history-file "${{ steps.validate.outputs.history_file }}" \
+            --pdf-file "${{ steps.pdf.outputs.pdf_file }}" \
+            --drive-upload-status "${{ steps.drive.outputs.drive_upload_status }}"
+
+          git add heartbeat.json
+          git commit -m "Update dashboard heartbeat ${{ steps.validate.outputs.iso_date }}"
+          git push origin main
+
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "sha=$DASHBOARD_SHA" >> "$GITHUB_OUTPUT"
+          echo "heartbeat_status=success" >> "$GITHUB_OUTPUT"
 
       - name: Prepare workflow artifacts
         if: steps.schedule.outputs.run == 'true'
@@ -179,6 +201,9 @@ jobs:
           mkdir -p artifacts
           cp data.json artifacts/data.json
           cp "${{ steps.validate.outputs.history_file }}" "artifacts/${{ steps.validate.outputs.iso_date }}.json"
+          if [ -f heartbeat.json ]; then
+            cp heartbeat.json artifacts/heartbeat.json
+          fi
           {
             echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             for log in "$RUNNER_TEMP"/generate-dashboard-attempt-*.log "$RUNNER_TEMP"/dashboard-http.log; do
@@ -212,15 +237,38 @@ jobs:
           echo "Report date: ${{ steps.validate.outputs.report_date }}"
           echo "Stress score: ${{ steps.validate.outputs.stress_score }}"
           echo "Opportunity score: ${{ steps.validate.outputs.opportunity_score }}"
+          echo "PDF filename: ${{ steps.pdf.outputs.pdf_file }}"
+          echo "Google Drive file ID: ${{ steps.drive.outputs.drive_file_id }}"
+          echo "Drive upload status: ${{ steps.drive.outputs.drive_upload_status }}"
+          echo "heartbeat.json status: ${{ steps.report.outputs.heartbeat_status }}"
           echo "History filename: ${{ steps.validate.outputs.history_file }}"
           {
             echo "### Market Stress Dashboard"
+            echo "- Dashboard date: ${{ steps.validate.outputs.report_date }}"
             echo "- Commit SHA: ${{ steps.report.outputs.sha }}"
-            echo "- Report date: ${{ steps.validate.outputs.report_date }}"
             echo "- Stress score: ${{ steps.validate.outputs.stress_score }}"
             echo "- Opportunity score: ${{ steps.validate.outputs.opportunity_score }}"
+            echo "- PDF filename: ${{ steps.pdf.outputs.pdf_file }}"
+            echo "- Google Drive file ID: ${{ steps.drive.outputs.drive_file_id }}"
+            echo "- Drive upload status: ${{ steps.drive.outputs.drive_upload_status }}"
+            echo "- heartbeat.json status: ${{ steps.report.outputs.heartbeat_status }}"
             echo "- History filename: ${{ steps.validate.outputs.history_file }}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Restore dashboard state on failure
+        if: failure() && steps.schedule.outputs.run == 'true'
+        run: |
+          if [ -f "$RUNNER_TEMP/data.json.before" ]; then
+            cp "$RUNNER_TEMP/data.json.before" data.json
+          fi
+          if [ -d "$RUNNER_TEMP/history.before" ]; then
+            rm -rf history
+            cp -R "$RUNNER_TEMP/history.before" history
+          else
+            rm -rf history
+          fi
+          rm -f heartbeat.json
+          echo "Restored prior dashboard state after failure."
 
       - name: Final status
         if: always()

@@ -9,6 +9,7 @@
     "test": "node --test"
   },
   "dependencies": {
+    "googleapis": "^174.0.0",
     "openai": "^5.12.2"
   }
 }
