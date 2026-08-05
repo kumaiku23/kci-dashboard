@@ -6,6 +6,18 @@ fail() {
   exit 1
 }
 
+KCI_SYNC_TMP_DIR=""
+KCI_SYNC_SERVER_PID=""
+
+cleanup_local_sync() {
+  if [[ -n "${KCI_SYNC_SERVER_PID:-}" ]]; then
+    kill "$KCI_SYNC_SERVER_PID" >/dev/null 2>&1 || true
+  fi
+  if [[ -n "${KCI_SYNC_TMP_DIR:-}" ]]; then
+    rm -rf "$KCI_SYNC_TMP_DIR"
+  fi
+}
+
 repo_root() {
   local script_dir
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -241,15 +253,13 @@ main() {
   load_local_config "$root"
   pull_latest_main
 
-  local start_seconds report_date iso_date chrome tmp_dir tmp_pdf dest_pdf server_pid pdf_size elapsed_seconds
+  local start_seconds report_date iso_date chrome tmp_dir tmp_pdf dest_pdf pdf_size elapsed_seconds
   start_seconds="$(date +%s)"
   report_date="$(node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync("data.json","utf8")); console.log(d.date);')"
   iso_date="$(report_date_to_iso "$report_date")"
   chrome="$(detect_chrome)"
 
   mkdir -p "$GOOGLE_DRIVE_PDF_DIR" "$root/logs"
-  tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/kci-dashboard-pdf.XXXXXX")"
-  tmp_pdf="$tmp_dir/$iso_date.pdf"
   dest_pdf="$GOOGLE_DRIVE_PDF_DIR/$iso_date.pdf"
 
   if today_pdf_is_complete "$dest_pdf"; then
@@ -269,16 +279,13 @@ SUMMARY
   fi
   remove_incomplete_pdf "$dest_pdf"
 
-  cleanup() {
-    if [[ -n "${server_pid:-}" ]]; then
-      kill "$server_pid" >/dev/null 2>&1 || true
-    fi
-    rm -rf "$tmp_dir"
-  }
-  trap cleanup EXIT
+  tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/kci-dashboard-pdf.XXXXXX")"
+  tmp_pdf="$tmp_dir/$iso_date.pdf"
+  KCI_SYNC_TMP_DIR="$tmp_dir"
+  trap cleanup_local_sync EXIT
 
   python3 -m http.server "$DASHBOARD_PORT" --bind 127.0.0.1 > "$root/logs/local-sync-pdf.http.log" 2>&1 &
-  server_pid="$!"
+  KCI_SYNC_SERVER_PID="$!"
 
   for _ in 1 2 3 4 5; do
     if curl -fsS "http://127.0.0.1:$DASHBOARD_PORT/" >/dev/null 2>&1; then

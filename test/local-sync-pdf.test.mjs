@@ -100,6 +100,12 @@ test("complete same-day PDF is detected for skip", async () => {
   assert.equal(result.status, 0, result.stderr);
 });
 
+test("cleanup trap tolerates unset temp directory", () => {
+  const result = runFunction("cleanup_local_sync");
+
+  assert.equal(result.status, 0, result.stderr);
+});
+
 test("one Google Drive account is detected and configured", async () => {
   const root = await tempDir();
   const cloudRoot = path.join(root, "CloudStorage");
