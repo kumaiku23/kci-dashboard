@@ -5,3 +5,5 @@ _print_template.html
 archive.sh
 archive.html
 node_modules/
+.local-dashboard.env
+logs/
