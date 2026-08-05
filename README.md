@@ -20,13 +20,16 @@ Static Market Stress Dashboard powered by `data.json`.
 Use this if you want your Mac to archive the latest dashboard PDF into a Google Drive for Desktop synced folder while GitHub Actions continues handling `data.json` and `history/`.
 
 1. Install Google Drive for Desktop.
-2. Confirm the target Google Drive folder is syncing locally.
-3. Copy `.local-dashboard.env.example` to `.local-dashboard.env`.
-4. Set `GOOGLE_DRIVE_PDF_DIR` to the synced folder path.
-5. Run manually:
-   `bash scripts/local-sync-pdf.sh`
-6. Install the weekday 2:15 PM schedule:
+2. Confirm Google Drive is syncing under `~/Library/CloudStorage/`.
+3. Install the weekday 2:15 PM schedule:
    `bash scripts/install-macos-pdf-sync.sh`
+4. The installer detects your Google Drive account automatically, creates this folder structure, and writes `.local-dashboard.env`:
+   `KCI/PDFs`
+   `KCI/JSON`
+   `KCI/Monthly`
+5. If you want to override the destination manually, copy `.local-dashboard.env.example` to `.local-dashboard.env` and edit the paths before installing.
+6. Run manually:
+   `bash scripts/local-sync-pdf.sh`
 7. Check logs:
    `tail -f logs/local-sync-pdf.out.log`
    `tail -f logs/local-sync-pdf.err.log`

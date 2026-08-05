@@ -21,11 +21,146 @@ require_clean_worktree() {
 load_local_config() {
   local root="$1"
   local config="$root/.local-dashboard.env"
-  [[ -f "$config" ]] || fail "Missing $config. Copy .local-dashboard.env.example to .local-dashboard.env and set GOOGLE_DRIVE_PDF_DIR."
+  if [[ ! -f "$config" ]]; then
+    echo "No .local-dashboard.env found; detecting Google Drive automatically."
+    initialize_local_config "$root"
+  fi
+  ensure_local_config "$root"
   # shellcheck disable=SC1090
   source "$config"
   [[ -n "${GOOGLE_DRIVE_PDF_DIR:-}" ]] || fail "GOOGLE_DRIVE_PDF_DIR is required in .local-dashboard.env."
+  [[ -n "${GOOGLE_DRIVE_JSON_DIR:-}" ]] || fail "GOOGLE_DRIVE_JSON_DIR is required in .local-dashboard.env."
+  [[ -n "${GOOGLE_DRIVE_MONTHLY_DIR:-}" ]] || fail "GOOGLE_DRIVE_MONTHLY_DIR is required in .local-dashboard.env."
   DASHBOARD_PORT="${DASHBOARD_PORT:-8080}"
+}
+
+cloud_storage_root() {
+  echo "${KCI_CLOUD_STORAGE_ROOT:-$HOME/Library/CloudStorage}"
+}
+
+google_drive_content_root() {
+  local drive_root="$1"
+  if [[ -d "$drive_root/My Drive" ]]; then
+    echo "$drive_root/My Drive"
+  else
+    echo "$drive_root"
+  fi
+}
+
+find_google_drive_dirs() {
+  local cloud_root="$1"
+  [[ -d "$cloud_root" ]] || return 0
+  find "$cloud_root" -maxdepth 1 -type d -name 'GoogleDrive*' -print | sort
+}
+
+select_google_drive_root() {
+  local cloud_root
+  cloud_root="$(cloud_storage_root)"
+  local drives=()
+  local drive
+  while IFS= read -r drive; do
+    [[ -n "$drive" ]] && drives+=("$drive")
+  done < <(find_google_drive_dirs "$cloud_root")
+
+  if [[ "${#drives[@]}" -eq 0 ]]; then
+    fail "Google Drive for Desktop was not found in $cloud_root. Install Google Drive for Desktop and sign in before installing PDF sync."
+  fi
+
+  if [[ "${#drives[@]}" -eq 1 ]]; then
+    echo "${drives[0]}"
+    return 0
+  fi
+
+  echo "Multiple Google Drive accounts were found:" >&2
+  local i
+  for i in "${!drives[@]}"; do
+    echo "  $((i + 1))) ${drives[$i]}" >&2
+  done
+
+  local selection="${KCI_GOOGLE_DRIVE_SELECTION:-}"
+  if [[ -z "$selection" ]]; then
+    read -r -p "Choose Google Drive account [1-${#drives[@]}]: " selection
+  fi
+
+  if ! [[ "$selection" =~ ^[0-9]+$ ]] || [[ "$selection" -lt 1 ]] || [[ "$selection" -gt "${#drives[@]}" ]]; then
+    fail "Invalid Google Drive selection: $selection"
+  fi
+
+  echo "${drives[$((selection - 1))]}"
+}
+
+create_kci_drive_dirs() {
+  local drive_root="$1"
+  local content_root
+  content_root="$(google_drive_content_root "$drive_root")"
+  mkdir -p "$content_root/KCI/PDFs" "$content_root/KCI/JSON" "$content_root/KCI/Monthly"
+}
+
+write_local_config() {
+  local root="$1"
+  local drive_root="$2"
+  local content_root config
+  content_root="$(google_drive_content_root "$drive_root")"
+  config="$root/.local-dashboard.env"
+  cat > "$config" <<CONFIG
+GOOGLE_DRIVE_PDF_DIR="$content_root/KCI/PDFs"
+GOOGLE_DRIVE_JSON_DIR="$content_root/KCI/JSON"
+GOOGLE_DRIVE_MONTHLY_DIR="$content_root/KCI/Monthly"
+DASHBOARD_PORT=8080
+CONFIG
+}
+
+initialize_local_config() {
+  local root="$1"
+  local drive_root
+  drive_root="$(select_google_drive_root)"
+  create_kci_drive_dirs "$drive_root"
+  write_local_config "$root" "$drive_root"
+}
+
+ensure_local_config() {
+  local root="$1"
+  local config="$root/.local-dashboard.env"
+  # shellcheck disable=SC1090
+  source "$config"
+
+  if [[ -z "${GOOGLE_DRIVE_PDF_DIR:-}" ]]; then
+    initialize_local_config "$root"
+    return 0
+  fi
+
+  local kci_root
+  kci_root="$(dirname "$GOOGLE_DRIVE_PDF_DIR")"
+  GOOGLE_DRIVE_JSON_DIR="${GOOGLE_DRIVE_JSON_DIR:-$kci_root/JSON}"
+  GOOGLE_DRIVE_MONTHLY_DIR="${GOOGLE_DRIVE_MONTHLY_DIR:-$kci_root/Monthly}"
+  DASHBOARD_PORT="${DASHBOARD_PORT:-8080}"
+
+  mkdir -p "$GOOGLE_DRIVE_PDF_DIR" "$GOOGLE_DRIVE_JSON_DIR" "$GOOGLE_DRIVE_MONTHLY_DIR"
+  cat > "$config" <<CONFIG
+GOOGLE_DRIVE_PDF_DIR="$GOOGLE_DRIVE_PDF_DIR"
+GOOGLE_DRIVE_JSON_DIR="$GOOGLE_DRIVE_JSON_DIR"
+GOOGLE_DRIVE_MONTHLY_DIR="$GOOGLE_DRIVE_MONTHLY_DIR"
+DASHBOARD_PORT=$DASHBOARD_PORT
+CONFIG
+}
+
+today_pdf_is_complete() {
+  local pdf_path="$1"
+  [[ -f "$pdf_path" ]] || return 1
+  local size
+  size="$(pdf_size_bytes "$pdf_path")"
+  [[ "$size" -gt 10240 ]]
+}
+
+remove_incomplete_pdf() {
+  local pdf_path="$1"
+  if [[ -f "$pdf_path" ]]; then
+    local size
+    size="$(pdf_size_bytes "$pdf_path")"
+    if [[ "$size" -le 10240 ]]; then
+      rm -f "$pdf_path"
+    fi
+  fi
 }
 
 detect_chrome() {
@@ -106,7 +241,8 @@ main() {
   load_local_config "$root"
   pull_latest_main
 
-  local report_date iso_date chrome tmp_dir tmp_pdf dest_pdf server_pid pdf_size
+  local start_seconds report_date iso_date chrome tmp_dir tmp_pdf dest_pdf server_pid pdf_size elapsed_seconds
+  start_seconds="$(date +%s)"
   report_date="$(node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync("data.json","utf8")); console.log(d.date);')"
   iso_date="$(report_date_to_iso "$report_date")"
   chrome="$(detect_chrome)"
@@ -115,6 +251,23 @@ main() {
   tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/kci-dashboard-pdf.XXXXXX")"
   tmp_pdf="$tmp_dir/$iso_date.pdf"
   dest_pdf="$GOOGLE_DRIVE_PDF_DIR/$iso_date.pdf"
+
+  if today_pdf_is_complete "$dest_pdf"; then
+    pdf_size="$(pdf_size_bytes "$dest_pdf")"
+    elapsed_seconds="$(( $(date +%s) - start_seconds ))"
+    cat <<SUMMARY
+✓ Today's PDF already exists.
+Skipping regeneration.
+
+Report date: $report_date
+Destination folder: $GOOGLE_DRIVE_PDF_DIR
+PDF filename: $iso_date.pdf
+PDF size: $pdf_size bytes
+Elapsed time: ${elapsed_seconds}s
+SUMMARY
+    exit 0
+  fi
+  remove_incomplete_pdf "$dest_pdf"
 
   cleanup() {
     if [[ -n "${server_pid:-}" ]]; then
@@ -137,13 +290,16 @@ main() {
   "$chrome" --headless --disable-gpu --no-sandbox --print-to-pdf="$tmp_pdf" "http://127.0.0.1:$DASHBOARD_PORT/"
   pdf_size="$(validate_pdf "$tmp_pdf")"
   copy_pdf_to_destination "$tmp_pdf" "$GOOGLE_DRIVE_PDF_DIR" "$iso_date"
+  elapsed_seconds="$(( $(date +%s) - start_seconds ))"
 
   cat <<SUMMARY
-PDF sync complete.
+✓ Dashboard archived successfully
+
 Report date: $report_date
-Source repo: $root
-Destination path: $dest_pdf
+Destination folder: $GOOGLE_DRIVE_PDF_DIR
+PDF filename: $iso_date.pdf
 PDF size: $pdf_size bytes
+Elapsed time: ${elapsed_seconds}s
 SUMMARY
 }
 

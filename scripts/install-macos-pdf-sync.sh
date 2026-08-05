@@ -17,16 +17,26 @@ escape_sed_replacement() {
 }
 
 main() {
-  local root template launch_agents plist repo_escaped home_escaped
+  local root template launch_agents plist repo_escaped home_escaped content_root
   root="$(repo_root)"
   template="$root/macos/com.kci.dashboard-pdf-sync.plist.example"
   launch_agents="$HOME/Library/LaunchAgents"
   plist="$launch_agents/com.kci.dashboard-pdf-sync.plist"
 
-  [[ -f "$root/.local-dashboard.env" ]] || fail "Missing $root/.local-dashboard.env. Configure it before installing the LaunchAgent."
   [[ -f "$template" ]] || fail "Missing LaunchAgent template: $template"
+  # shellcheck disable=SC1091
+  source "$root/scripts/local-sync-pdf.sh"
 
   mkdir -p "$root/logs" "$launch_agents"
+  if [[ -f "$root/.local-dashboard.env" ]]; then
+    ensure_local_config "$root"
+  else
+    initialize_local_config "$root"
+  fi
+
+  # shellcheck disable=SC1090
+  source "$root/.local-dashboard.env"
+  content_root="$(dirname "$(dirname "$GOOGLE_DRIVE_PDF_DIR")")"
 
   repo_escaped="$(escape_sed_replacement "$root")"
   home_escaped="$(escape_sed_replacement "$HOME")"
@@ -42,6 +52,18 @@ main() {
 
   cat <<INFO
 Installed LaunchAgent: $plist
+
+Repository:
+  $root
+
+Google Drive folder:
+  $content_root
+
+PDF folder:
+  $GOOGLE_DRIVE_PDF_DIR
+
+LaunchAgent location:
+  $plist
 
 Run manually:
   bash "$root/scripts/local-sync-pdf.sh"

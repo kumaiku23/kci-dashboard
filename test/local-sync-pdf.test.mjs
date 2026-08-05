@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -32,10 +32,14 @@ test("report date conversion returns YYYY-MM-DD", () => {
 
 test("missing Drive directory configuration is rejected", async () => {
   const root = await tempDir();
-  const result = runFunction(`load_local_config ${shellQuote(root)}`);
+  const cloudRoot = path.join(root, "CloudStorage");
+  await mkdir(cloudRoot);
+  const result = runFunction(`load_local_config ${shellQuote(root)}`, {
+    env: { KCI_CLOUD_STORAGE_ROOT: cloudRoot }
+  });
 
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /Missing .*\.local-dashboard\.env/);
+  assert.match(result.stderr, /Google Drive for Desktop was not found/);
 });
 
 test("dirty git working tree is rejected", async () => {
@@ -84,4 +88,64 @@ test("same-day PDF is replaced in destination", async () => {
 
   assert.equal(result.status, 0, result.stderr);
   assert.equal(await readFile(path.join(destination, "2026-08-04.pdf"), "utf8"), "new pdf");
+});
+
+test("complete same-day PDF is detected for skip", async () => {
+  const root = await tempDir();
+  const pdfPath = path.join(root, "2026-08-04.pdf");
+  await writeFile(pdfPath, Buffer.alloc(10241, "x"));
+
+  const result = runFunction(`today_pdf_is_complete ${shellQuote(pdfPath)}`);
+
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test("one Google Drive account is detected and configured", async () => {
+  const root = await tempDir();
+  const cloudRoot = path.join(root, "CloudStorage");
+  const driveRoot = path.join(cloudRoot, "GoogleDrive-user@example.com", "My Drive");
+  await mkdir(driveRoot, { recursive: true });
+
+  const result = runFunction(`initialize_local_config ${shellQuote(root)}`, {
+    env: { KCI_CLOUD_STORAGE_ROOT: cloudRoot }
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const envFile = await readFile(path.join(root, ".local-dashboard.env"), "utf8");
+  assert.match(envFile, /GOOGLE_DRIVE_PDF_DIR=.*KCI\/PDFs/);
+  assert.match(envFile, /GOOGLE_DRIVE_JSON_DIR=.*KCI\/JSON/);
+  assert.match(envFile, /GOOGLE_DRIVE_MONTHLY_DIR=.*KCI\/Monthly/);
+});
+
+test("multiple Google Drive accounts can be selected", async () => {
+  const root = await tempDir();
+  const cloudRoot = path.join(root, "CloudStorage");
+  const first = path.join(cloudRoot, "GoogleDrive-a@example.com");
+  const second = path.join(cloudRoot, "GoogleDrive-b@example.com");
+  await mkdir(first, { recursive: true });
+  await mkdir(second, { recursive: true });
+
+  const result = runFunction("select_google_drive_root", {
+    env: {
+      KCI_CLOUD_STORAGE_ROOT: cloudRoot,
+      KCI_GOOGLE_DRIVE_SELECTION: "2"
+    }
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), second);
+  assert.match(result.stderr, /Multiple Google Drive accounts were found/);
+});
+
+test("no Google Drive install fails clearly", async () => {
+  const root = await tempDir();
+  const cloudRoot = path.join(root, "CloudStorage");
+  await mkdir(cloudRoot);
+
+  const result = runFunction("select_google_drive_root", {
+    env: { KCI_CLOUD_STORAGE_ROOT: cloudRoot }
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Google Drive for Desktop was not found/);
 });
