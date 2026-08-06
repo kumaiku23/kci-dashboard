@@ -1,0 +1,11 @@
+{
+  "lastRun": "2026-08-06T10:20:41-07:00",
+  "status": "success",
+  "reportDate": "August 6, 2026",
+  "stressScore": 8.1,
+  "opportunityScore": 8.7,
+  "commit": "1f633a52c631f32281f36034ec0f4da8db4e7c31",
+  "historyFile": "history/2026-08-06.json",
+  "pdfFile": "market-stress-dashboard-2026-08-06.pdf",
+  "driveUploadStatus": "skipped"
+}
