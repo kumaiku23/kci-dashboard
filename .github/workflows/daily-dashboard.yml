@@ -139,6 +139,13 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
         run: |
+          if [ -z "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" ] || [ -z "${GOOGLE_DRIVE_FOLDER_ID:-}" ]; then
+            echo "::warning::Google Drive upload skipped because GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_DRIVE_FOLDER_ID is not configured."
+            echo "drive_file_id=" >> "$GITHUB_OUTPUT"
+            echo "drive_upload_status=skipped" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           for attempt in 1 2 3; do
             echo "Google Drive upload attempt $attempt of 3"
             if node scripts/upload-pdf-to-drive.mjs "${{ steps.pdf.outputs.pdf_path }}"; then
