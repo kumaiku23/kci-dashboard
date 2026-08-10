@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: daily-dashboard-main
@@ -22,6 +24,13 @@ jobs:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      run: ${{ steps.schedule.outputs.run }}
+      report_date: ${{ steps.validate.outputs.report_date }}
+      iso_date: ${{ steps.validate.outputs.iso_date }}
+      stress_score: ${{ steps.validate.outputs.stress_score }}
+      opportunity_score: ${{ steps.validate.outputs.opportunity_score }}
+      dashboard_sha: ${{ steps.report.outputs.sha }}
     steps:
       - name: Check schedule window
         id: schedule
@@ -285,3 +294,129 @@ jobs:
           else
             echo "❌ Dashboard Publish Failed"
           fi
+
+  deploy-pages:
+    needs: publish
+    if: needs.publish.result == 'success' && needs.publish.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out published main
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6.0.0
+
+      - name: Prepare and validate static site
+        id: site
+        env:
+          EXPECTED_REPORT_DATE: ${{ needs.publish.outputs.report_date }}
+          EXPECTED_ISO_DATE: ${{ needs.publish.outputs.iso_date }}
+        run: |
+          test -f index.html
+          test -f data.json
+          test -f "history/${EXPECTED_ISO_DATE}.json"
+
+          node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync("data.json", "utf8"));
+            if (data.date !== process.env.EXPECTED_REPORT_DATE) {
+              throw new Error(`Expected ${process.env.EXPECTED_REPORT_DATE}, found ${data.date}`);
+            }
+            if (!Number.isFinite(data.composite?.stressScore)) {
+              throw new Error("data.json is missing composite.stressScore");
+            }
+            process.stdout.write(`${data.date}\n${data.composite.stressScore}\n`);
+          ' > "$RUNNER_TEMP/dashboard-metadata"
+
+          {
+            IFS= read -r report_date
+            IFS= read -r stress_score
+            echo "report_date=$report_date"
+            echo "stress_score=$stress_score"
+          } < "$RUNNER_TEMP/dashboard-metadata" >> "$GITHUB_OUTPUT"
+
+          echo "Deploying dashboard date: $(head -n 1 "$RUNNER_TEMP/dashboard-metadata")"
+          echo "Deploying stress score: $(tail -n 1 "$RUNNER_TEMP/dashboard-metadata")"
+
+          rm -rf _site
+          mkdir -p _site
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'node_modules/' \
+            --exclude 'artifacts/' \
+            --exclude 'logs/' \
+            --exclude 'scripts/' \
+            --exclude 'test/' \
+            --exclude 'macos/' \
+            --exclude 'package*.json' \
+            --exclude '*.md' \
+            --exclude '.gitignore' \
+            --exclude '.local-dashboard.env*' \
+            ./ _site/
+          touch _site/.nojekyll
+          test -f _site/index.html
+          test -f _site/data.json
+          test -f "_site/history/${EXPECTED_ISO_DATE}.json"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5.0.0
+
+      - name: Verify live GitHub Pages
+        id: verify-live
+        env:
+          EXPECTED_REPORT_DATE: ${{ needs.publish.outputs.report_date }}
+        run: |
+          for attempt in $(seq 1 12); do
+            if live_date="$(curl --fail --silent --show-error --location \
+              "https://kumaiku23.github.io/kci-dashboard/data.json?run=${GITHUB_RUN_ID}&attempt=${attempt}" \
+              | node -e 'let input=""; process.stdin.on("data", (chunk) => input += chunk); process.stdin.on("end", () => { console.log(JSON.parse(input).date); });')"; then
+              echo "Live dashboard attempt $attempt: $live_date"
+              if [ "$live_date" = "$EXPECTED_REPORT_DATE" ]; then
+                echo "verified=yes" >> "$GITHUB_OUTPUT"
+                echo "live_date=$live_date" >> "$GITHUB_OUTPUT"
+                echo "✅ Live GitHub Pages verified: $live_date"
+                exit 0
+              fi
+            else
+              echo "Live dashboard attempt $attempt could not be fetched or parsed."
+            fi
+
+            if [ "$attempt" -lt 12 ]; then
+              sleep 10
+            fi
+          done
+
+          echo "verified=no" >> "$GITHUB_OUTPUT"
+          echo "::error::Pages deployment completed, but the live dashboard did not update to $EXPECTED_REPORT_DATE after 12 attempts."
+          exit 1
+
+      - name: Publish Pages deployment summary
+        if: always()
+        run: |
+          {
+            echo "### GitHub Pages Deployment"
+            echo "- Dashboard generated: yes"
+            echo "- Dashboard report date: ${{ needs.publish.outputs.report_date }}"
+            echo "- Stress score: ${{ needs.publish.outputs.stress_score }}"
+            echo "- Dashboard commit SHA: ${{ needs.publish.outputs.dashboard_sha }}"
+            echo "- Pages deployment: ${{ steps.deployment.outcome }}"
+            echo "- Live site verified: ${{ steps.verify-live.outputs.verified || 'no' }}"
+            echo "- Live dashboard date: ${{ steps.verify-live.outputs.live_date || 'not verified' }}"
+            echo "- Public URL: https://kumaiku23.github.io/kci-dashboard/"
+          } >> "$GITHUB_STEP_SUMMARY"
