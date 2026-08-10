@@ -8,6 +8,11 @@ fail() {
 
 KCI_SYNC_TMP_DIR=""
 KCI_SYNC_SERVER_PID=""
+KCI_SYNC_ROOT=""
+KCI_SYNC_ATTEMPT_TIME=""
+KCI_SYNC_EXPECTED_DATE=""
+KCI_SYNC_DASHBOARD_DATE=""
+KCI_SYNC_STATUS_WRITTEN="false"
 
 cleanup_local_sync() {
   if [[ -n "${KCI_SYNC_SERVER_PID:-}" ]]; then
@@ -16,6 +21,51 @@ cleanup_local_sync() {
   if [[ -n "${KCI_SYNC_TMP_DIR:-}" ]]; then
     rm -rf "$KCI_SYNC_TMP_DIR"
   fi
+}
+
+write_local_status() {
+  local status="$1"
+  local pdf_name="${2:-}"
+  local status_file
+  status_file="$KCI_SYNC_ROOT/logs/local-sync-status.json"
+
+  mkdir -p "$KCI_SYNC_ROOT/logs"
+  node -e '
+    const fs = require("fs");
+    const [file, lastAttempt, expectedDate, dashboardDate, status, pdf] = process.argv.slice(1);
+    fs.writeFileSync(file, `${JSON.stringify({
+      lastAttempt,
+      expectedDate,
+      dashboardDate,
+      status,
+      pdf: pdf || null
+    }, null, 2)}\n`);
+  ' "$status_file" "$KCI_SYNC_ATTEMPT_TIME" "$KCI_SYNC_EXPECTED_DATE" "$KCI_SYNC_DASHBOARD_DATE" "$status" "$pdf_name"
+  KCI_SYNC_STATUS_WRITTEN="true"
+}
+
+log_local_attempt() {
+  local result="$1"
+  local destination_pdf="${2:-}"
+  mkdir -p "$KCI_SYNC_ROOT/logs"
+  printf '%s | dashboard=%s | expected=%s | destination=%s | result=%s\n' \
+    "$KCI_SYNC_ATTEMPT_TIME" \
+    "${KCI_SYNC_DASHBOARD_DATE:-unknown}" \
+    "${KCI_SYNC_EXPECTED_DATE:-unknown}" \
+    "${destination_pdf:-none}" \
+    "$result" >> "$KCI_SYNC_ROOT/logs/local-sync-pdf.runs.log"
+}
+
+finish_local_sync() {
+  local exit_code="$?"
+  cleanup_local_sync
+
+  if [[ "$exit_code" -ne 0 && "$KCI_SYNC_STATUS_WRITTEN" != "true" && -n "$KCI_SYNC_ROOT" ]]; then
+    write_local_status "error" "${KCI_SYNC_EXPECTED_DATE:-unknown}.pdf" || true
+    log_local_attempt "error" "${GOOGLE_DRIVE_PDF_DIR:-}" || true
+  fi
+
+  exit "$exit_code"
 }
 
 repo_root() {
@@ -176,6 +226,11 @@ remove_incomplete_pdf() {
 }
 
 detect_chrome() {
+  if [[ -n "${KCI_SYNC_CHROME_BIN:-}" && -x "$KCI_SYNC_CHROME_BIN" ]]; then
+    echo "$KCI_SYNC_CHROME_BIN"
+    return 0
+  fi
+
   local mac_chrome="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
   if [[ "${KCI_TEST_DISABLE_MAC_CHROME:-}" != "1" && -x "$mac_chrome" ]]; then
     echo "$mac_chrome"
@@ -239,50 +294,87 @@ copy_pdf_to_destination() {
 }
 
 pull_latest_main() {
+  if [[ "${KCI_SYNC_SKIP_PULL:-}" = "1" ]]; then
+    return 0
+  fi
   git fetch origin
   require_clean_worktree
   git checkout main
   git pull --ff-only origin main
 }
 
+today_iso_date() {
+  if [[ -n "${KCI_SYNC_TEST_TODAY_ISO:-}" ]]; then
+    echo "$KCI_SYNC_TEST_TODAY_ISO"
+    return 0
+  fi
+  TZ=America/Los_Angeles date +%Y-%m-%d
+}
+
+attempt_timestamp() {
+  if [[ -n "${KCI_SYNC_TEST_ATTEMPT_TIME:-}" ]]; then
+    echo "$KCI_SYNC_TEST_ATTEMPT_TIME"
+    return 0
+  fi
+  TZ=America/Los_Angeles date '+%Y-%m-%dT%H:%M:%S%z' | sed -E 's/([+-][0-9]{2})([0-9]{2})$/\1:\2/'
+}
+
 main() {
   local root
-  root="$(repo_root)"
+  root="${KCI_SYNC_TEST_ROOT:-$(repo_root)}"
   cd "$root"
+
+  KCI_SYNC_ROOT="$root"
+  KCI_SYNC_ATTEMPT_TIME="$(attempt_timestamp)"
+  KCI_SYNC_EXPECTED_DATE="$(today_iso_date)"
+  trap finish_local_sync EXIT
 
   load_local_config "$root"
   pull_latest_main
 
-  local start_seconds report_date iso_date chrome tmp_dir tmp_pdf dest_pdf pdf_size elapsed_seconds
+  local start_seconds report_date dashboard_date chrome tmp_dir tmp_pdf dest_pdf pdf_size elapsed_seconds
   start_seconds="$(date +%s)"
   report_date="$(node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync("data.json","utf8")); console.log(d.date);')"
-  iso_date="$(report_date_to_iso "$report_date")"
-  chrome="$(detect_chrome)"
+  dashboard_date="$(report_date_to_iso "$report_date")"
+  KCI_SYNC_DASHBOARD_DATE="$dashboard_date"
 
   mkdir -p "$GOOGLE_DRIVE_PDF_DIR" "$root/logs"
-  dest_pdf="$GOOGLE_DRIVE_PDF_DIR/$iso_date.pdf"
+  dest_pdf="$GOOGLE_DRIVE_PDF_DIR/$KCI_SYNC_EXPECTED_DATE.pdf"
+
+  if [[ "$KCI_SYNC_DASHBOARD_DATE" != "$KCI_SYNC_EXPECTED_DATE" ]]; then
+    write_local_status "waiting_for_dashboard" "$KCI_SYNC_EXPECTED_DATE.pdf"
+    log_local_attempt "waiting_for_dashboard" "$dest_pdf"
+    cat <<SUMMARY
+Dashboard has not published today's report yet.
+Expected: $KCI_SYNC_EXPECTED_DATE
+Found: $KCI_SYNC_DASHBOARD_DATE
+Will retry at the next scheduled sync.
+SUMMARY
+    exit 0
+  fi
 
   if today_pdf_is_complete "$dest_pdf"; then
     pdf_size="$(pdf_size_bytes "$dest_pdf")"
+    write_local_status "already_archived" "$KCI_SYNC_EXPECTED_DATE.pdf"
+    log_local_attempt "already_archived" "$dest_pdf"
     elapsed_seconds="$(( $(date +%s) - start_seconds ))"
     cat <<SUMMARY
-✓ Today's PDF already exists.
-Skipping regeneration.
+✓ Today's PDF already exists. Nothing to do.
 
 Report date: $report_date
 Destination folder: $GOOGLE_DRIVE_PDF_DIR
-PDF filename: $iso_date.pdf
+PDF filename: $KCI_SYNC_EXPECTED_DATE.pdf
 PDF size: $pdf_size bytes
 Elapsed time: ${elapsed_seconds}s
 SUMMARY
     exit 0
   fi
   remove_incomplete_pdf "$dest_pdf"
+  chrome="$(detect_chrome)"
 
   tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/kci-dashboard-pdf.XXXXXX")"
-  tmp_pdf="$tmp_dir/$iso_date.pdf"
+  tmp_pdf="$tmp_dir/$KCI_SYNC_EXPECTED_DATE.pdf"
   KCI_SYNC_TMP_DIR="$tmp_dir"
-  trap cleanup_local_sync EXIT
 
   python3 -m http.server "$DASHBOARD_PORT" --bind 127.0.0.1 > "$root/logs/local-sync-pdf.http.log" 2>&1 &
   KCI_SYNC_SERVER_PID="$!"
@@ -296,7 +388,9 @@ SUMMARY
 
   "$chrome" --headless --disable-gpu --no-sandbox --print-to-pdf="$tmp_pdf" "http://127.0.0.1:$DASHBOARD_PORT/"
   pdf_size="$(validate_pdf "$tmp_pdf")"
-  copy_pdf_to_destination "$tmp_pdf" "$GOOGLE_DRIVE_PDF_DIR" "$iso_date"
+  copy_pdf_to_destination "$tmp_pdf" "$GOOGLE_DRIVE_PDF_DIR" "$KCI_SYNC_EXPECTED_DATE"
+  write_local_status "success" "$KCI_SYNC_EXPECTED_DATE.pdf"
+  log_local_attempt "success" "$dest_pdf"
   elapsed_seconds="$(( $(date +%s) - start_seconds ))"
 
   cat <<SUMMARY
@@ -304,7 +398,7 @@ SUMMARY
 
 Report date: $report_date
 Destination folder: $GOOGLE_DRIVE_PDF_DIR
-PDF filename: $iso_date.pdf
+PDF filename: $KCI_SYNC_EXPECTED_DATE.pdf
 PDF size: $pdf_size bytes
 Elapsed time: ${elapsed_seconds}s
 SUMMARY

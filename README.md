@@ -21,7 +21,7 @@ Use this if you want your Mac to archive the latest dashboard PDF into a Google 
 
 1. Install Google Drive for Desktop.
 2. Confirm Google Drive is syncing under `~/Library/CloudStorage/`.
-3. Install the weekday 2:15 PM schedule:
+3. Install the weekday schedule:
    `bash scripts/install-macos-pdf-sync.sh`
 4. The installer detects your Google Drive account automatically, creates this folder structure, and writes `.local-dashboard.env`:
    `KCI/PDFs`
@@ -33,7 +33,10 @@ Use this if you want your Mac to archive the latest dashboard PDF into a Google 
 7. Check logs:
    `tail -f logs/local-sync-pdf.out.log`
    `tail -f logs/local-sync-pdf.err.log`
+   `tail -f logs/local-sync-pdf.runs.log`
 8. Uninstall:
    `bash scripts/uninstall-macos-pdf-sync.sh`
 
-The Mac must be awake and connected to the internet at the scheduled time.
+The LaunchAgent runs on weekdays at 2:30 PM, 3:30 PM, and 4:30 PM America/Los_Angeles. This gives GitHub Actions time to finish when its scheduled dashboard run is delayed. Each run pulls `main`, waits without creating a PDF when `data.json` is not yet dated today, and writes its result to `logs/local-sync-status.json`. Once a valid same-day PDF has been archived, later runs detect the existing file and exit successfully without making a duplicate.
+
+The Mac must be awake and connected to the internet at a scheduled time.

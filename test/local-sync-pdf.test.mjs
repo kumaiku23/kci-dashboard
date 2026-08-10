@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -19,8 +19,56 @@ function runFunction(command, options = {}) {
   });
 }
 
+function runLocalSync(options = {}) {
+  return spawnSync("/bin/bash", [scriptPath], {
+    cwd: path.resolve("."),
+    env: { ...process.env, ...options.env },
+    encoding: "utf8"
+  });
+}
+
 async function tempDir() {
   return mkdtemp(path.join(os.tmpdir(), "kci-local-sync-test-"));
+}
+
+async function createSyncFixture(reportDate) {
+  const root = await tempDir();
+  const driveDir = path.join(root, "drive", "KCI", "PDFs");
+  const chromePath = path.join(root, "fake-chrome.sh");
+
+  await mkdir(driveDir, { recursive: true });
+  await writeFile(path.join(root, "data.json"), JSON.stringify({ date: reportDate }));
+  await writeFile(path.join(root, "index.html"), "<title>Dashboard</title>");
+  await writeFile(
+    path.join(root, ".local-dashboard.env"),
+    [
+      `GOOGLE_DRIVE_PDF_DIR=${JSON.stringify(driveDir)}`,
+      `GOOGLE_DRIVE_JSON_DIR=${JSON.stringify(path.join(root, "drive", "KCI", "JSON"))}`,
+      `GOOGLE_DRIVE_MONTHLY_DIR=${JSON.stringify(path.join(root, "drive", "KCI", "Monthly"))}`,
+      "DASHBOARD_PORT=18999"
+    ].join("\n")
+  );
+  await writeFile(
+    chromePath,
+    "#!/bin/sh\nfor arg in \"$@\"; do case \"$arg\" in --print-to-pdf=*) output=${arg#--print-to-pdf=};; esac; done\nhead -c 10241 /dev/zero > \"$output\"\n"
+  );
+  await chmod(chromePath, 0o755);
+
+  return { root, driveDir, chromePath };
+}
+
+function syncEnvironment(fixture, attemptTime = "2026-08-10T15:30:01-07:00") {
+  return {
+    KCI_SYNC_TEST_ROOT: fixture.root,
+    KCI_SYNC_SKIP_PULL: "1",
+    KCI_SYNC_TEST_TODAY_ISO: "2026-08-10",
+    KCI_SYNC_TEST_ATTEMPT_TIME: attemptTime,
+    KCI_SYNC_CHROME_BIN: fixture.chromePath
+  };
+}
+
+async function readLocalStatus(fixture) {
+  return JSON.parse(await readFile(path.join(fixture.root, "logs", "local-sync-status.json"), "utf8"));
 }
 
 test("report date conversion returns YYYY-MM-DD", () => {
@@ -104,6 +152,68 @@ test("cleanup trap tolerates unset temp directory", () => {
   const result = runFunction("cleanup_local_sync");
 
   assert.equal(result.status, 0, result.stderr);
+});
+
+test("stale dashboard waits successfully without generating a PDF", async () => {
+  const fixture = await createSyncFixture("August 9, 2026");
+  const result = runLocalSync({ env: syncEnvironment(fixture) });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Dashboard has not published today's report yet\./);
+  assert.match(result.stdout, /Expected: 2026-08-10/);
+  assert.match(result.stdout, /Found: 2026-08-09/);
+  assert.deepEqual(await readLocalStatus(fixture), {
+    lastAttempt: "2026-08-10T15:30:01-07:00",
+    expectedDate: "2026-08-10",
+    dashboardDate: "2026-08-09",
+    status: "waiting_for_dashboard",
+    pdf: "2026-08-10.pdf"
+  });
+  assert.equal(spawnSync("test", ["-e", path.join(fixture.driveDir, "2026-08-10.pdf")]).status, 1);
+});
+
+test("current dashboard generates a PDF and writes success status", async () => {
+  const fixture = await createSyncFixture("August 10, 2026");
+  const result = runLocalSync({ env: syncEnvironment(fixture) });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Dashboard archived successfully/);
+  assert.equal(spawnSync("test", ["-s", path.join(fixture.driveDir, "2026-08-10.pdf")]).status, 0);
+  assert.equal((await readLocalStatus(fixture)).status, "success");
+});
+
+test("valid same-day PDF exits successfully without regenerating", async () => {
+  const fixture = await createSyncFixture("August 10, 2026");
+  const first = runLocalSync({ env: syncEnvironment(fixture) });
+  assert.equal(first.status, 0, first.stderr);
+
+  const second = runLocalSync({
+    env: syncEnvironment(fixture, "2026-08-10T16:30:01-07:00")
+  });
+  assert.equal(second.status, 0, second.stderr);
+  assert.match(second.stdout, /Today's PDF already exists\. Nothing to do\./);
+  assert.deepEqual(await readLocalStatus(fixture), {
+    lastAttempt: "2026-08-10T16:30:01-07:00",
+    expectedDate: "2026-08-10",
+    dashboardDate: "2026-08-10",
+    status: "already_archived",
+    pdf: "2026-08-10.pdf"
+  });
+});
+
+test("a later retry archives the PDF after an earlier stale attempt", async () => {
+  const fixture = await createSyncFixture("August 9, 2026");
+  const waiting = runLocalSync({ env: syncEnvironment(fixture, "2026-08-10T14:30:01-07:00") });
+  assert.equal(waiting.status, 0, waiting.stderr);
+
+  await writeFile(path.join(fixture.root, "data.json"), JSON.stringify({ date: "August 10, 2026" }));
+  const success = runLocalSync({ env: syncEnvironment(fixture, "2026-08-10T15:30:01-07:00") });
+  assert.equal(success.status, 0, success.stderr);
+  assert.equal((await readLocalStatus(fixture)).status, "success");
+
+  const attempts = await readFile(path.join(fixture.root, "logs", "local-sync-pdf.runs.log"), "utf8");
+  assert.match(attempts, /result=waiting_for_dashboard/);
+  assert.match(attempts, /result=success/);
 });
 
 test("one Google Drive account is detected and configured", async () => {

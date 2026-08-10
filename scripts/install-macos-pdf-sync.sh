@@ -53,6 +53,9 @@ main() {
   cat <<INFO
 Installed LaunchAgent: $plist
 
+Schedule:
+  Weekdays at 2:30 PM, 3:30 PM, and 4:30 PM America/Los_Angeles
+
 Repository:
   $root
 
@@ -74,6 +77,7 @@ Inspect status:
 Inspect logs:
   tail -f "$root/logs/local-sync-pdf.out.log"
   tail -f "$root/logs/local-sync-pdf.err.log"
+  tail -f "$root/logs/local-sync-pdf.runs.log"
 
 Uninstall:
   bash "$root/scripts/uninstall-macos-pdf-sync.sh"
