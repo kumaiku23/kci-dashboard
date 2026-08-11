@@ -163,13 +163,13 @@
   .printbar{position:sticky;top:0;z-index:5;background:#efece4;text-align:center;padding:10px}
 
   .toolbar-fixed{position:sticky;top:0;z-index:10;display:flex;justify-content:flex-end;gap:10px;padding:10px 14px;background:#efece4}
-  .toolbar-fixed button{font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;border:1px solid var(--line-strong);background:var(--accent);color:#fff;cursor:pointer}
+  .toolbar-fixed .pdf-button{font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;border:1px solid var(--line-strong);background:var(--accent);color:#fff;cursor:pointer;text-decoration:none}
   .localnote{max-width:8.5in;margin:0 auto 10px;font-family:var(--sans);font-size:11px;color:var(--muted);background:#fff7e6;border:1px solid #f0e2bf;border-radius:8px;padding:8px 12px}
   @media print{ .toolbar-fixed{display:none!important} .localnote{display:none!important} }
 </style>
 </head>
 <body>
-<div class="toolbar-fixed no-print"><button onclick="window.print()">⤓ Save as PDF</button></div>
+<div class="toolbar-fixed no-print"><a id="pdf-download" class="pdf-button" href="./latest.pdf" target="_blank" rel="noopener">⤓ Save PDF</a></div>
 <div class="stage" id="stage"><div style="max-width:700px;margin:60px auto;font-family:var(--sans);color:#6b7280">Loading dashboard…</div></div>
 <script>
 
@@ -592,6 +592,21 @@ function build(d){
 }
 
 const FALLBACK = TEMPLATE;
+
+function reportDateToIso(reportDate) {
+  const parsed = new Date(`${reportDate} 12:00:00 UTC`);
+  if (Number.isNaN(parsed.valueOf())) return null;
+  const month = String(parsed.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getUTCDate()).padStart(2, '0');
+  return `${parsed.getUTCFullYear()}-${month}-${day}`;
+}
+
+function updatePdfDownload(reportDate) {
+  const link = document.getElementById('pdf-download');
+  const isoDate = reportDateToIso(reportDate);
+  if (link && isoDate) link.href = `./reports/${isoDate}.pdf`;
+}
+
 async function load(){
   const stage = document.getElementById('stage');
   let data = FALLBACK, note = '';
@@ -602,6 +617,7 @@ async function load(){
   }catch(e){ note = 'Showing bundled data (data.json not reachable — this is normal when opening the file locally).'; }
   try{
     stage.innerHTML = build(data);
+    updatePdfDownload(data.date);
     if(note){ const n=document.createElement('div'); n.className='localnote no-print'; n.textContent=note; stage.insertBefore(n, stage.firstChild); }
   }catch(e){ stage.innerHTML = '<div style="max-width:700px;margin:60px auto;font-family:var(--sans);color:#c62828">Could not render the dashboard: ' + e.message + '</div>'; }
 }

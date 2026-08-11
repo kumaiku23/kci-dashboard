@@ -315,6 +315,12 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v6.0.0
 
+      - name: Download generated dashboard artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: market-stress-dashboard-${{ needs.publish.outputs.iso_date }}
+          path: workflow-artifact
+
       - name: Prepare and validate static site
         id: site
         env:
@@ -324,6 +330,15 @@ jobs:
           test -f index.html
           test -f data.json
           test -f "history/${EXPECTED_ISO_DATE}.json"
+
+          PDF_FILE="market-stress-dashboard-${EXPECTED_ISO_DATE}.pdf"
+          PDF_SOURCE="workflow-artifact/${PDF_FILE}"
+          test -f "$PDF_SOURCE"
+          PDF_SIZE="$(stat -c%s "$PDF_SOURCE")"
+          if [ "$PDF_SIZE" -le 10240 ]; then
+            echo "::error::Generated PDF is too small: ${PDF_SOURCE} is ${PDF_SIZE} bytes."
+            exit 1
+          fi
 
           node -e '
             const fs = require("fs");
@@ -363,10 +378,21 @@ jobs:
             --exclude '.gitignore' \
             --exclude '.local-dashboard.env*' \
             ./ _site/
+          mkdir -p _site/reports
+          cp "$PDF_SOURCE" _site/latest.pdf
+          cp "$PDF_SOURCE" "_site/reports/${EXPECTED_ISO_DATE}.pdf"
           touch _site/.nojekyll
           test -f _site/index.html
           test -f _site/data.json
           test -f "_site/history/${EXPECTED_ISO_DATE}.json"
+          test -f _site/latest.pdf
+          test -f "_site/reports/${EXPECTED_ISO_DATE}.pdf"
+          test "$(stat -c%s _site/latest.pdf)" -gt 10240
+          test "$(stat -c%s "_site/reports/${EXPECTED_ISO_DATE}.pdf")" -gt 10240
+          echo "pdf_file=reports/${EXPECTED_ISO_DATE}.pdf" >> "$GITHUB_OUTPUT"
+          echo "pdf_size=$PDF_SIZE" >> "$GITHUB_OUTPUT"
+          echo "PDF deployed: reports/${EXPECTED_ISO_DATE}.pdf"
+          echo "PDF size: ${PDF_SIZE} bytes"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5.0.0
@@ -381,6 +407,7 @@ jobs:
         id: verify-live
         env:
           EXPECTED_REPORT_DATE: ${{ needs.publish.outputs.report_date }}
+          EXPECTED_ISO_DATE: ${{ needs.publish.outputs.iso_date }}
         run: |
           for attempt in $(seq 1 12); do
             if live_date="$(curl --fail --silent --show-error --location \
@@ -388,10 +415,24 @@ jobs:
               | node -e 'let input=""; process.stdin.on("data", (chunk) => input += chunk); process.stdin.on("end", () => { console.log(JSON.parse(input).date); });')"; then
               echo "Live dashboard attempt $attempt: $live_date"
               if [ "$live_date" = "$EXPECTED_REPORT_DATE" ]; then
-                echo "verified=yes" >> "$GITHUB_OUTPUT"
-                echo "live_date=$live_date" >> "$GITHUB_OUTPUT"
-                echo "✅ Live GitHub Pages verified: $live_date"
-                exit 0
+                LIVE_PDF="$RUNNER_TEMP/live-dashboard-${EXPECTED_ISO_DATE}.pdf"
+                if live_pdf_response="$(curl --fail --silent --show-error --location \
+                  "https://kumaiku23.github.io/kci-dashboard/reports/${EXPECTED_ISO_DATE}.pdf" \
+                  --output "$LIVE_PDF" \
+                  --write-out '%{http_code} %{size_download}')"; then
+                  read -r live_pdf_status live_pdf_size <<< "$live_pdf_response"
+                  echo "Live PDF attempt $attempt: HTTP ${live_pdf_status}, ${live_pdf_size} bytes"
+                  if [ "$live_pdf_status" = "200" ] && [ "${live_pdf_size%.*}" -gt 10240 ]; then
+                    echo "verified=yes" >> "$GITHUB_OUTPUT"
+                    echo "live_date=$live_date" >> "$GITHUB_OUTPUT"
+                    echo "live_pdf_size=$live_pdf_size" >> "$GITHUB_OUTPUT"
+                    echo "✅ Live GitHub Pages verified: $live_date"
+                    exit 0
+                  fi
+                  echo "Live PDF attempt $attempt did not return a usable PDF."
+                else
+                  echo "Live PDF attempt $attempt could not be fetched."
+                fi
               fi
             else
               echo "Live dashboard attempt $attempt could not be fetched or parsed."
@@ -403,7 +444,7 @@ jobs:
           done
 
           echo "verified=no" >> "$GITHUB_OUTPUT"
-          echo "::error::Pages deployment completed, but the live dashboard did not update to $EXPECTED_REPORT_DATE after 12 attempts."
+          echo "::error::Pages deployment completed, but the live dashboard and PDF were not verified for $EXPECTED_REPORT_DATE after 12 attempts."
           exit 1
 
       - name: Publish Pages deployment summary
@@ -418,5 +459,7 @@ jobs:
             echo "- Pages deployment: ${{ steps.deployment.outcome }}"
             echo "- Live site verified: ${{ steps.verify-live.outputs.verified || 'no' }}"
             echo "- Live dashboard date: ${{ steps.verify-live.outputs.live_date || 'not verified' }}"
+            echo "- PDF deployed: ${{ steps.site.outputs.pdf_file || 'not deployed' }}"
+            echo "- Live PDF size: ${{ steps.verify-live.outputs.live_pdf_size || 'not verified' }} bytes"
             echo "- Public URL: https://kumaiku23.github.io/kci-dashboard/"
           } >> "$GITHUB_STEP_SUMMARY"
