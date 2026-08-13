@@ -1,11 +1,11 @@
 {
-  "lastRun": "2026-08-12T14:14:08-07:00",
+  "lastRun": "2026-08-13T14:14:56-07:00",
   "status": "success",
-  "reportDate": "August 12, 2026",
+  "reportDate": "August 13, 2026",
   "stressScore": 8.1,
   "opportunityScore": 8.6,
-  "commit": "bb40b942afbc92fedf10f2da6c33d97260a6f417",
-  "historyFile": "history/2026-08-12.json",
-  "pdfFile": "market-stress-dashboard-2026-08-12.pdf",
+  "commit": "ea83062b24df11055482ed2f10ff7f829facb452",
+  "historyFile": "history/2026-08-13.json",
+  "pdfFile": "market-stress-dashboard-2026-08-13.pdf",
   "driveUploadStatus": "skipped"
 }
