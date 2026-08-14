@@ -6,6 +6,8 @@ import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 
 const scriptPath = path.resolve("scripts/local-sync-pdf.sh");
+const plistTemplatePath = path.resolve("macos/com.kci.dashboard-pdf-sync.plist.example");
+const dailyWorkflowPath = path.resolve(".github/workflows/daily-dashboard.yml");
 
 function shellQuote(value) {
   return `'${value.replace(/'/g, "'\\''")}'`;
@@ -152,6 +154,31 @@ test("cleanup trap tolerates unset temp directory", () => {
   const result = runFunction("cleanup_local_sync");
 
   assert.equal(result.status, 0, result.stderr);
+});
+
+test("morning schedules use the intended Pacific retry windows", async () => {
+  const [plist, workflow] = await Promise.all([
+    readFile(plistTemplatePath, "utf8"),
+    readFile(dailyWorkflowPath, "utf8")
+  ]);
+  const scheduleEntries = [...plist.matchAll(/<key>Weekday<\/key><integer>(\d+)<\/integer><key>Hour<\/key><integer>(\d+)<\/integer><key>Minute<\/key><integer>(\d+)<\/integer>/g)]
+    .map(([, weekday, hour, minute]) => ({ weekday: Number(weekday), hour: Number(hour), minute: Number(minute) }));
+
+  assert.equal(scheduleEntries.length, 15);
+  for (const weekday of [2, 3, 4, 5, 6]) {
+    assert.deepEqual(
+      scheduleEntries.filter((entry) => entry.weekday === weekday),
+      [
+        { weekday, hour: 8, minute: 30 },
+        { weekday, hour: 9, minute: 30 },
+        { weekday, hour: 10, minute: 30 }
+      ]
+    );
+  }
+  assert.match(workflow, /- cron: "30 14 \* \* 1-5"/);
+  assert.match(workflow, /- cron: "30 15 \* \* 1-5"/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 14 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 15 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
 });
 
 test("stale dashboard waits successfully without generating a PDF", async () => {

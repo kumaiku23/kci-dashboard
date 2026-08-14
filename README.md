@@ -37,6 +37,6 @@ Use this if you want your Mac to archive the latest dashboard PDF into a Google 
 8. Uninstall:
    `bash scripts/uninstall-macos-pdf-sync.sh`
 
-The LaunchAgent runs on weekdays at 2:30 PM, 3:30 PM, and 4:30 PM America/Los_Angeles. This gives GitHub Actions time to finish when its scheduled dashboard run is delayed. Each run pulls `main`, waits without creating a PDF when `data.json` is not yet dated today, and writes its result to `logs/local-sync-status.json`. Once a valid same-day PDF has been archived, later runs detect the existing file and exit successfully without making a duplicate.
+The LaunchAgent runs on weekdays at 8:30 AM, 9:30 AM, and 10:30 AM America/Los_Angeles. This gives GitHub Actions time to finish when its 7:30 AM Pacific dashboard run is delayed. Each run pulls `main`, waits without creating a PDF when `data.json` is not yet dated today, and writes its result to `logs/local-sync-status.json`. Once a valid same-day PDF has been archived, later runs detect the existing file and exit successfully without making a duplicate.
 
 The Mac must be awake and connected to the internet at a scheduled time.

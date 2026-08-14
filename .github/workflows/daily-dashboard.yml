@@ -3,9 +3,9 @@ name: Daily Market Stress Dashboard
 on:
   workflow_dispatch:
   schedule:
-    # 1:30 PM America/Los_Angeles. UTC shifts with daylight saving time.
-    - cron: "30 20 * * 1-5"
-    - cron: "30 21 * * 1-5"
+    # 7:30 AM America/Los_Angeles. UTC shifts with daylight saving time.
+    - cron: "30 14 * * 1-5"
+    - cron: "30 15 * * 1-5"
 
 permissions:
   contents: write
@@ -42,8 +42,8 @@ jobs:
 
           SCHEDULE="${{ github.event.schedule }}"
           LOCAL_ZONE="$(date +%Z)"
-          if { [ "$SCHEDULE" = "30 20 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
-             { [ "$SCHEDULE" = "30 21 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
+          if { [ "$SCHEDULE" = "30 14 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
+             { [ "$SCHEDULE" = "30 15 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
