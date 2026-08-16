@@ -54,7 +54,7 @@ main() {
 Installed LaunchAgent: $plist
 
 Schedule:
-  Weekdays at 8:30 AM, 9:30 AM, and 10:30 AM America/Los_Angeles
+  Mondays at 8:30 AM, 9:30 AM, and 10:30 AM America/Los_Angeles
 
 Repository:
   $root

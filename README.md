@@ -1,42 +1,27 @@
-# Market Stress Dashboard
+# Weekly Market Pressure Gauge
 
-Static Market Stress Dashboard powered by `data.json`.
+A capital allocator's weekly weather report, powered by `data.json`. It describes direction, magnitude, breadth, and persistence of market pressure and emerging opportunity; it is not a market-timing signal.
 
-## Daily Publishing Setup
+The gauge publishes automatically every Monday at 7:30 AM America/Los_Angeles. Its displayed subtitle is `Week of [Monday date]`; a manual midweek publication retains its actual archive date while displaying the Monday that starts that report week.
 
-1. Go to Settings → Secrets and variables → Actions.
-2. Add a repository secret named `OPENAI_API_KEY`.
-3. Create a Google Cloud service account.
-4. Enable the Google Drive API.
-5. Create a JSON key for the service account.
-6. Share the target Google Drive folder with the service account email as Editor.
-7. Add a repository secret named `GOOGLE_SERVICE_ACCOUNT_JSON` containing the full JSON key.
-8. Add a repository secret named `GOOGLE_DRIVE_FOLDER_ID` containing the target folder ID.
-9. Run the "Daily Market Stress Dashboard" workflow manually once from the Actions tab.
-10. Confirm `data.json` updates, `history/YYYY-MM-DD.json` exists, `heartbeat.json` updates, and `YYYY-MM-DD.pdf` appears in Drive.
+## Weekly Publishing Setup
+
+1. Go to Settings -> Secrets and variables -> Actions.
+2. Add the repository secret `OPENAI_API_KEY`.
+3. To retain the optional GitHub Actions Drive upload, create a Google Cloud service account, enable Google Drive API, create a JSON key, and share the target Drive folder with its service account email as Editor.
+4. Add `GOOGLE_SERVICE_ACCOUNT_JSON` and `GOOGLE_DRIVE_FOLDER_ID` as repository secrets.
+5. Run the `Weekly Market Pressure Gauge` workflow manually once from the Actions tab.
+6. Confirm `data.json`, `history/YYYY-MM-DD.json`, `history/index.json`, `heartbeat.json`, and the date-specific PDF update.
 
 ## Local Mac PDF Sync
 
-Use this if you want your Mac to archive the latest dashboard PDF into a Google Drive for Desktop synced folder while GitHub Actions continues handling `data.json` and `history/`.
+The local Mac sync archives the published weekly PDF to your Google Drive for Desktop folder while GitHub Actions remains responsible for `data.json` and history publishing.
 
-1. Install Google Drive for Desktop.
-2. Confirm Google Drive is syncing under `~/Library/CloudStorage/`.
-3. Install the weekday schedule:
-   `bash scripts/install-macos-pdf-sync.sh`
-4. The installer detects your Google Drive account automatically, creates this folder structure, and writes `.local-dashboard.env`:
-   `KCI/PDFs`
-   `KCI/JSON`
-   `KCI/Monthly`
-5. If you want to override the destination manually, copy `.local-dashboard.env.example` to `.local-dashboard.env` and edit the paths before installing.
-6. Run manually:
-   `bash scripts/local-sync-pdf.sh`
-7. Check logs:
-   `tail -f logs/local-sync-pdf.out.log`
-   `tail -f logs/local-sync-pdf.err.log`
-   `tail -f logs/local-sync-pdf.runs.log`
-8. Uninstall:
-   `bash scripts/uninstall-macos-pdf-sync.sh`
+1. Install Google Drive for Desktop and confirm its target folder is syncing under `~/Library/CloudStorage/`.
+2. Optionally copy `.local-dashboard.env.example` to `.local-dashboard.env` and set the KCI folders. The installer can also discover a single Google Drive account and create `KCI/PDFs`, `KCI/JSON`, and `KCI/Monthly`.
+3. Run manually: `bash scripts/local-sync-pdf.sh`.
+4. Install the schedule: `bash scripts/install-macos-pdf-sync.sh`.
+5. Inspect logs: `tail -f logs/local-sync-pdf.out.log`, `tail -f logs/local-sync-pdf.err.log`, or `tail -f logs/local-sync-pdf.runs.log`.
+6. Uninstall: `bash scripts/uninstall-macos-pdf-sync.sh`.
 
-The LaunchAgent runs on weekdays at 8:30 AM, 9:30 AM, and 10:30 AM America/Los_Angeles. This gives GitHub Actions time to finish when its 7:30 AM Pacific dashboard run is delayed. Each run pulls `main`, waits without creating a PDF when `data.json` is not yet dated today, and writes its result to `logs/local-sync-status.json`. Once a valid same-day PDF has been archived, later runs detect the existing file and exit successfully without making a duplicate.
-
-The Mac must be awake and connected to the internet at a scheduled time.
+The LaunchAgent runs Monday at 8:30 AM, 9:30 AM, and 10:30 AM America/Los_Angeles. Repeated runs are harmless: until Monday's dashboard is published it records `waiting_for_dashboard`; once a valid `YYYY-MM-DD.pdf` is archived it records `already_archived`. Manual Tuesday-Sunday runs record `no_report_expected`. The Mac must be awake and connected to the internet at a scheduled time.

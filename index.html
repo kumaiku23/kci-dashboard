@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Market Stress Dashboard — Kuma Capital Investments</title>
+<title>Weekly Market Pressure Gauge — Kuma Capital Investments</title>
 <style>
   :root{
     --paper:#fbfaf7;
@@ -57,6 +57,7 @@
   .mast{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
   .mast .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
   .mast h1{font-family:var(--serif);font-weight:700;font-size:30px;margin:4px 0 2px;letter-spacing:-.01em}
+  .week-of{font-family:var(--serif);font-size:15px;color:var(--muted);margin-top:2px}
   .mast .sub{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
   .mast .date{font-size:13px;color:var(--ink)}
   .mast .conf{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
@@ -174,7 +175,7 @@
 <script>
 
 const TEMPLATE = {
-  "title":"Market Stress Dashboard",
+  "title":"Weekly Market Pressure Gauge",
   "date":"June 6, 2026",
   "composite":{
     "stressScore":9.3,
@@ -380,6 +381,7 @@ function specTable(rows){
 
 function build(d){
   const sc=d.composite, sp=d.sparklines;
+  const weekOf=weekOfFromReportDate(d.date);
   const stressC=scoreColor(sc.stressScore), oppC=oppColor(sc.opportunityScore);
 
   // PAGE 1 — SUMMARY
@@ -396,8 +398,9 @@ function build(d){
     <div class="mast">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
         <div>
-          <div class="eyebrow">Daily Risk &amp; Opportunity Briefing</div>
+          <div class="eyebrow">A capital allocator's weekly weather report</div>
           <h1>${esc(d.title)}</h1>
+          <div class="week-of">Week of ${esc(weekOf || d.date)}</div>
         </div>
         ${logoLink(`<img src="${LOGO}" style="height:52px;margin-top:4px" alt="Kuma Capital Investments, Inc.">`)}
       </div>
@@ -406,7 +409,7 @@ function build(d){
 
     <div class="scoregrid">
       <div class="scorecard">
-        <div class="lbl">Composite Stress / Pressure</div>
+        <div class="lbl">Market Pressure Score</div>
         <div class="row"><div class="num" style="color:${stressC}">${sc.stressScore}<span class="of">/10</span></div>
           <span class="pill" style="background:${stressC};color:#fff">${sc.stressScore>=8.5?'High Risk':sc.stressScore>=7?'Elevated':sc.stressScore>=5?'Watch':'Calm'}</span></div>
         <div class="spark">${sparkline(sp.stress, stressC)}</div>
@@ -427,7 +430,7 @@ function build(d){
 
     <div class="two">
       <div>
-        <div class="secthead">Stress drivers</div>
+        <div class="secthead">Pressure Drivers</div>
         <div class="bars">${drivers}</div>
       </div>
       <div>
@@ -452,7 +455,7 @@ function build(d){
     <td><span class="b-bar" style="display:block"><span class="b-fill" style="width:${b.probability*2.4}%"></span></span></td></tr>`).join('');
 
   const page2=`<section class="page">
-    <div class="mast" style="display:flex;justify-content:space-between;align-items:center"><div><div class="eyebrow">${esc(d.date)}</div><h1 style="font-size:22px">Risk Heat Map</h1></div>${logoLink(`<img src="${LOGO}" style="height:32px" alt="KCI">`)}</div>
+    <div class="mast" style="display:flex;justify-content:space-between;align-items:center"><div><div class="eyebrow">${esc(d.date)}</div><h1 style="font-size:22px">Market Pressure Map</h1></div>${logoLink(`<img src="${LOGO}" style="height:32px" alt="KCI">`)}</div>
     <div class="secthead">Traffic-light grid — 20 indicators</div>
     <div class="tl-grid">${tl}</div>
     <div style="display:flex;gap:18px;margin:10px 0 18px;font-size:10px;color:var(--muted);align-items:center">
@@ -599,6 +602,14 @@ function reportDateToIso(reportDate) {
   const month = String(parsed.getUTCMonth() + 1).padStart(2, '0');
   const day = String(parsed.getUTCDate()).padStart(2, '0');
   return `${parsed.getUTCFullYear()}-${month}-${day}`;
+}
+
+function weekOfFromReportDate(reportDate) {
+  const parsed = new Date(`${reportDate} 12:00:00 UTC`);
+  if (Number.isNaN(parsed.valueOf())) return null;
+  const offset = (parsed.getUTCDay() + 6) % 7;
+  parsed.setUTCDate(parsed.getUTCDate() - offset);
+  return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(parsed);
 }
 
 function updatePdfDownload(reportDate) {

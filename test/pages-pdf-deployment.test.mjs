@@ -21,7 +21,7 @@ test("Pages deploy downloads and publishes the generated PDF", async () => {
   const workflow = await readFixture(workflowPath);
 
   assert.match(workflow, /uses: actions\/download-artifact@v8\.0\.1/);
-  assert.match(workflow, /name: market-stress-dashboard-\$\{\{ needs\.publish\.outputs\.iso_date \}\}/);
+  assert.match(workflow, /name: market-pressure-gauge-\$\{\{ needs\.publish\.outputs\.iso_date \}\}/);
   assert.match(workflow, /PDF_SOURCE="workflow-artifact\/\$\{PDF_FILE\}"/);
   assert.match(workflow, /test -f "\$PDF_SOURCE"/);
   assert.match(workflow, /\[ "\$PDF_SIZE" -le 10240 \]/);
@@ -39,4 +39,14 @@ test("live Pages verification requires today's PDF to be public and nontrivial",
   assert.match(workflow, /--write-out '%\{http_code\} %\{size_download\}'/);
   assert.match(workflow, /\[ "\$live_pdf_status" = "200" \]/);
   assert.match(workflow, /\[ "\$\{live_pdf_size%\.\*\}" -gt 10240 \]/);
+});
+
+
+test("weekly public naming and date-specific PDF control remain visible", async () => {
+  const index = await readFixture(indexPath);
+  assert.match(index, /Weekly Market Pressure Gauge/);
+  assert.match(index, /Market Pressure Score/);
+  assert.match(index, /Week of \${esc\(weekOf \|\| d\.date\)\}/);
+  assert.match(index, /function weekOfFromReportDate/);
+  assert.match(index, /stressScore/);
 });

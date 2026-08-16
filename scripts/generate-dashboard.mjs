@@ -141,7 +141,7 @@ function promptForDashboard(prior, reportDate) {
     {
       role: "system",
       content:
-        "You are a careful market research analyst producing a static dashboard data file. Use web search to verify current market stress and bubble-risk signals. Return only JSON that matches the provided schema. Do not include markdown, citations, comments, or explanatory text outside the JSON object."
+        "You are a careful market research analyst producing a weekly Market Pressure Gauge data file. Use web search to verify current market pressure and bubble-risk signals. Return only JSON that matches the provided schema. Do not include markdown, citations, comments, or explanatory text outside the JSON object."
     },
     {
       role: "user",
@@ -186,7 +186,7 @@ async function generateWithOpenAI(prior, schema, reportDate) {
     text: {
       format: {
         type: "json_schema",
-        name: "market_stress_dashboard",
+        name: "weekly_market_pressure_gauge",
         strict: true,
         schema
       }

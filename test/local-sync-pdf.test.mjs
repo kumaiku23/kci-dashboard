@@ -65,6 +65,7 @@ function syncEnvironment(fixture, attemptTime = "2026-08-10T15:30:01-07:00") {
     KCI_SYNC_SKIP_PULL: "1",
     KCI_SYNC_TEST_TODAY_ISO: "2026-08-10",
     KCI_SYNC_TEST_ATTEMPT_TIME: attemptTime,
+    KCI_SYNC_TEST_WEEKDAY: "1",
     KCI_SYNC_CHROME_BIN: fixture.chromePath
   };
 }
@@ -156,29 +157,24 @@ test("cleanup trap tolerates unset temp directory", () => {
   assert.equal(result.status, 0, result.stderr);
 });
 
-test("morning schedules use the intended Pacific retry windows", async () => {
+test("Monday schedules use the intended Pacific retry windows", async () => {
   const [plist, workflow] = await Promise.all([
     readFile(plistTemplatePath, "utf8"),
     readFile(dailyWorkflowPath, "utf8")
   ]);
   const scheduleEntries = [...plist.matchAll(/<key>Weekday<\/key><integer>(\d+)<\/integer><key>Hour<\/key><integer>(\d+)<\/integer><key>Minute<\/key><integer>(\d+)<\/integer>/g)]
     .map(([, weekday, hour, minute]) => ({ weekday: Number(weekday), hour: Number(hour), minute: Number(minute) }));
-
-  assert.equal(scheduleEntries.length, 15);
-  for (const weekday of [2, 3, 4, 5, 6]) {
-    assert.deepEqual(
-      scheduleEntries.filter((entry) => entry.weekday === weekday),
-      [
-        { weekday, hour: 8, minute: 30 },
-        { weekday, hour: 9, minute: 30 },
-        { weekday, hour: 10, minute: 30 }
-      ]
-    );
-  }
-  assert.match(workflow, /- cron: "30 14 \* \* 1-5"/);
-  assert.match(workflow, /- cron: "30 15 \* \* 1-5"/);
-  assert.match(workflow, /\[ "\$SCHEDULE" = "30 14 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
-  assert.match(workflow, /\[ "\$SCHEDULE" = "30 15 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
+  assert.deepEqual(scheduleEntries, [
+    { weekday: 2, hour: 8, minute: 30 },
+    { weekday: 2, hour: 9, minute: 30 },
+    { weekday: 2, hour: 10, minute: 30 }
+  ]);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /- cron: "30 14 \* \* 1"/);
+  assert.match(workflow, /- cron: "30 15 \* \* 1"/);
+  assert.doesNotMatch(workflow, /1-5/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 14 \* \* 1" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 15 \* \* 1" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
 });
 
 test("stale dashboard waits successfully without generating a PDF", async () => {
@@ -186,7 +182,7 @@ test("stale dashboard waits successfully without generating a PDF", async () => 
   const result = runLocalSync({ env: syncEnvironment(fixture) });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Dashboard has not published today's report yet\./);
+  assert.match(result.stdout, /Weekly Market Pressure Gauge has not published today's report yet\./);
   assert.match(result.stdout, /Expected: 2026-08-10/);
   assert.match(result.stdout, /Found: 2026-08-09/);
   assert.deepEqual(await readLocalStatus(fixture), {
@@ -204,7 +200,7 @@ test("current dashboard generates a PDF and writes success status", async () => 
   const result = runLocalSync({ env: syncEnvironment(fixture) });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /Dashboard archived successfully/);
+  assert.match(result.stdout, /Weekly Market Pressure Gauge archived successfully/);
   assert.equal(spawnSync("test", ["-s", path.join(fixture.driveDir, "2026-08-10.pdf")]).status, 0);
   assert.equal((await readLocalStatus(fixture)).status, "success");
 });
@@ -291,4 +287,20 @@ test("no Google Drive install fails clearly", async () => {
 
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /Google Drive for Desktop was not found/);
+});
+
+
+test("non-Monday manual run records no_report_expected without generating a PDF", async () => {
+  const fixture = await createSyncFixture("August 10, 2026");
+  const result = runLocalSync({ env: { ...syncEnvironment(fixture), KCI_SYNC_TEST_WEEKDAY: "2" } });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /No weekly report is expected today/);
+  assert.deepEqual(await readLocalStatus(fixture), {
+    lastAttempt: "2026-08-10T15:30:01-07:00",
+    expectedDate: "2026-08-10",
+    dashboardDate: "not_applicable",
+    status: "no_report_expected",
+    pdf: null
+  });
+  assert.equal(spawnSync("test", ["-e", path.join(fixture.driveDir, "2026-08-10.pdf")]).status, 1);
 });

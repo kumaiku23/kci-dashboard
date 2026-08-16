@@ -9,10 +9,11 @@ async function main() {
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `iso_date=${result.isoDate}\n`);
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `history_file=${result.historyFile}\n`);
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `report_date=${result.displayDate}\n`);
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `week_of_date=${result.weekOfDate}\n`);
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `stress_score=${result.stressScore}\n`);
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `opportunity_score=${result.opportunityScore}\n`);
   }
-  console.log(`Dashboard watchdog passed for ${result.displayDate}.`);
+  console.log(`Weekly Market Pressure Gauge watchdog passed for ${result.displayDate}.`);
 }
 
 main().catch((error) => {

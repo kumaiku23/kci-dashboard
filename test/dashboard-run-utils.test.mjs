@@ -5,6 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import {
   buildHeartbeat,
+  getWeekOfDate,
   validateDashboardFreshness,
   validatePdfFile,
   writeJson
@@ -57,7 +58,7 @@ test("heartbeat schema contains successful run fields", () => {
     opportunityScore: 8.8,
     commit: "abc123",
     historyFile: "history/2026-08-04.json",
-    pdfFile: "market-stress-dashboard-2026-08-04.pdf",
+    pdfFile: "market-pressure-gauge-2026-08-04.pdf",
     driveUploadStatus: "success"
   });
 
@@ -93,4 +94,13 @@ test("undersized PDF is rejected", async () => {
     () => validatePdfFile(pdfPath),
     /PDF is too small/
   );
+});
+
+
+test("week-of date resolves to the Los Angeles Monday across boundaries", () => {
+  assert.equal(getWeekOfDate(new Date("2026-08-17T19:00:00Z")), "August 17, 2026");
+  assert.equal(getWeekOfDate(new Date("2026-08-19T19:00:00Z")), "August 17, 2026");
+  assert.equal(getWeekOfDate(new Date("2026-08-23T19:00:00Z")), "August 17, 2026");
+  assert.equal(getWeekOfDate(new Date("2027-01-01T20:00:00Z")), "December 28, 2026");
+  assert.equal(getWeekOfDate(new Date("2026-03-09T19:00:00Z")), "March 9, 2026");
 });

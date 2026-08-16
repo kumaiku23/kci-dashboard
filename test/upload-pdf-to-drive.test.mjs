@@ -13,14 +13,14 @@ import {
 
 async function tempPdf() {
   const root = await mkdtemp(path.join(os.tmpdir(), "kci-drive-test-"));
-  const pdfPath = path.join(root, "market-stress-dashboard-2026-08-04.pdf");
+  const pdfPath = path.join(root, "market-pressure-gauge-2026-08-04.pdf");
   await writeFile(pdfPath, "pdf content");
   return pdfPath;
 }
 
 test("Drive upload filename normalizes to YYYY-MM-DD.pdf", () => {
   assert.equal(
-    driveFileNameFromPdfPath("artifacts/market-stress-dashboard-2026-08-04.pdf"),
+    driveFileNameFromPdfPath("artifacts/market-pressure-gauge-2026-08-04.pdf"),
     "2026-08-04.pdf"
   );
 });

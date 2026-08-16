@@ -303,6 +303,14 @@ pull_latest_main() {
   git pull --ff-only origin main
 }
 
+is_monday() {
+  if [[ -n "${KCI_SYNC_TEST_WEEKDAY:-}" ]]; then
+    [[ "$KCI_SYNC_TEST_WEEKDAY" = "1" ]]
+    return
+  fi
+  [[ "$(TZ=America/Los_Angeles date +%u)" = "1" ]]
+}
+
 today_iso_date() {
   if [[ -n "${KCI_SYNC_TEST_TODAY_ISO:-}" ]]; then
     echo "$KCI_SYNC_TEST_TODAY_ISO"
@@ -332,6 +340,15 @@ main() {
   load_local_config "$root"
   pull_latest_main
 
+  if ! is_monday; then
+    KCI_SYNC_DASHBOARD_DATE="not_applicable"
+    mkdir -p "$root/logs"
+    write_local_status "no_report_expected"
+    log_local_attempt "no_report_expected"
+    echo "No weekly report is expected today. Weekly PDF sync runs on Mondays only."
+    exit 0
+  fi
+
   local start_seconds report_date dashboard_date chrome tmp_dir tmp_pdf dest_pdf pdf_size elapsed_seconds
   start_seconds="$(date +%s)"
   report_date="$(node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync("data.json","utf8")); console.log(d.date);')"
@@ -345,7 +362,7 @@ main() {
     write_local_status "waiting_for_dashboard" "$KCI_SYNC_EXPECTED_DATE.pdf"
     log_local_attempt "waiting_for_dashboard" "$dest_pdf"
     cat <<SUMMARY
-Dashboard has not published today's report yet.
+Weekly Market Pressure Gauge has not published today's report yet.
 Expected: $KCI_SYNC_EXPECTED_DATE
 Found: $KCI_SYNC_DASHBOARD_DATE
 Will retry at the next scheduled sync.
@@ -361,7 +378,7 @@ SUMMARY
     cat <<SUMMARY
 ✓ Today's PDF already exists. Nothing to do.
 
-Report date: $report_date
+Publication date: $report_date
 Destination folder: $GOOGLE_DRIVE_PDF_DIR
 PDF filename: $KCI_SYNC_EXPECTED_DATE.pdf
 PDF size: $pdf_size bytes
@@ -394,7 +411,7 @@ SUMMARY
   elapsed_seconds="$(( $(date +%s) - start_seconds ))"
 
   cat <<SUMMARY
-✓ Dashboard archived successfully
+✓ Weekly Market Pressure Gauge archived successfully
 
 Report date: $report_date
 Destination folder: $GOOGLE_DRIVE_PDF_DIR

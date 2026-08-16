@@ -1,11 +1,11 @@
-name: Daily Market Stress Dashboard
+name: Weekly Market Pressure Gauge
 
 on:
   workflow_dispatch:
   schedule:
     # 7:30 AM America/Los_Angeles. UTC shifts with daylight saving time.
-    - cron: "30 14 * * 1-5"
-    - cron: "30 15 * * 1-5"
+    - cron: "30 14 * * 1"
+    - cron: "30 15 * * 1"
 
 permissions:
   contents: write
@@ -27,6 +27,7 @@ jobs:
     outputs:
       run: ${{ steps.schedule.outputs.run }}
       report_date: ${{ steps.validate.outputs.report_date }}
+      week_of_date: ${{ steps.validate.outputs.week_of_date }}
       iso_date: ${{ steps.validate.outputs.iso_date }}
       stress_score: ${{ steps.validate.outputs.stress_score }}
       opportunity_score: ${{ steps.validate.outputs.opportunity_score }}
@@ -42,8 +43,8 @@ jobs:
 
           SCHEDULE="${{ github.event.schedule }}"
           LOCAL_ZONE="$(date +%Z)"
-          if { [ "$SCHEDULE" = "30 14 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
-             { [ "$SCHEDULE" = "30 15 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
+          if { [ "$SCHEDULE" = "30 14 * * 1" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
+             { [ "$SCHEDULE" = "30 15 * * 1" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -83,9 +84,9 @@ jobs:
           fi
 
           for attempt in 1 2 3; do
-            echo "Dashboard generation attempt $attempt of 3"
+            echo "Weekly gauge generation attempt $attempt of 3"
             if node scripts/generate-dashboard.mjs 2>&1 | tee "$RUNNER_TEMP/generate-dashboard-attempt-$attempt.log"; then
-              echo "Dashboard generation succeeded on attempt $attempt."
+              echo "Weekly gauge generation succeeded on attempt $attempt."
               exit 0
             fi
 
@@ -98,12 +99,12 @@ jobs:
             fi
 
             if [ "$attempt" -lt 3 ]; then
-              echo "Dashboard generation failed on attempt $attempt; retrying in 30 seconds."
+              echo "Weekly gauge generation failed on attempt $attempt; retrying in 30 seconds."
               sleep 30
             fi
           done
 
-          echo "::error::Dashboard generation failed after 3 attempts. Restored existing data.json; no partial files will be committed."
+          echo "::error::Weekly gauge generation failed after 3 attempts. Restored existing data.json; no partial files will be committed."
           exit 1
 
       - name: Stale-dashboard watchdog
@@ -116,7 +117,7 @@ jobs:
         id: pdf
         run: |
           mkdir -p artifacts
-          PDF_FILE="market-stress-dashboard-${{ steps.validate.outputs.iso_date }}.pdf"
+          PDF_FILE="market-pressure-gauge-${{ steps.validate.outputs.iso_date }}.pdf"
           PDF_PATH="artifacts/$PDF_FILE"
           echo "pdf_file=$PDF_FILE" >> "$GITHUB_OUTPUT"
           echo "pdf_path=$PDF_PATH" >> "$GITHUB_OUTPUT"
@@ -241,7 +242,7 @@ jobs:
         if: steps.schedule.outputs.run == 'true'
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: market-stress-dashboard-${{ steps.validate.outputs.iso_date }}
+          name: market-pressure-gauge-${{ steps.validate.outputs.iso_date }}
           path: artifacts/
           retention-days: 90
           if-no-files-found: warn
@@ -250,8 +251,9 @@ jobs:
         if: steps.schedule.outputs.run == 'true'
         run: |
           echo "Commit SHA: ${{ steps.report.outputs.sha }}"
-          echo "Report date: ${{ steps.validate.outputs.report_date }}"
-          echo "Stress score: ${{ steps.validate.outputs.stress_score }}"
+          echo "Publication date: ${{ steps.validate.outputs.report_date }}"
+          echo "Week of: ${{ steps.validate.outputs.week_of_date }}"
+          echo "Market Pressure Score: ${{ steps.validate.outputs.stress_score }}"
           echo "Opportunity score: ${{ steps.validate.outputs.opportunity_score }}"
           echo "PDF filename: ${{ steps.pdf.outputs.pdf_file }}"
           echo "Google Drive file ID: ${{ steps.drive.outputs.drive_file_id }}"
@@ -259,10 +261,11 @@ jobs:
           echo "heartbeat.json status: ${{ steps.report.outputs.heartbeat_status }}"
           echo "History filename: ${{ steps.validate.outputs.history_file }}"
           {
-            echo "### Market Stress Dashboard"
-            echo "- Dashboard date: ${{ steps.validate.outputs.report_date }}"
+            echo "### Weekly Market Pressure Gauge"
+            echo "- Publication date: ${{ steps.validate.outputs.report_date }}"
+            echo "- Week of: ${{ steps.validate.outputs.week_of_date }}"
             echo "- Commit SHA: ${{ steps.report.outputs.sha }}"
-            echo "- Stress score: ${{ steps.validate.outputs.stress_score }}"
+            echo "- Market Pressure Score: ${{ steps.validate.outputs.stress_score }}"
             echo "- Opportunity score: ${{ steps.validate.outputs.opportunity_score }}"
             echo "- PDF filename: ${{ steps.pdf.outputs.pdf_file }}"
             echo "- Google Drive file ID: ${{ steps.drive.outputs.drive_file_id }}"
@@ -290,9 +293,9 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
-            echo "✅ Dashboard Published Successfully"
+            echo "✅ Weekly Market Pressure Gauge Published Successfully"
           else
-            echo "❌ Dashboard Publish Failed"
+            echo "❌ Weekly Market Pressure Gauge Publish Failed"
           fi
 
   deploy-pages:
@@ -318,7 +321,7 @@ jobs:
       - name: Download generated dashboard artifact
         uses: actions/download-artifact@v8.0.1
         with:
-          name: market-stress-dashboard-${{ needs.publish.outputs.iso_date }}
+          name: market-pressure-gauge-${{ needs.publish.outputs.iso_date }}
           path: workflow-artifact
 
       - name: Prepare and validate static site
@@ -331,7 +334,7 @@ jobs:
           test -f data.json
           test -f "history/${EXPECTED_ISO_DATE}.json"
 
-          PDF_FILE="market-stress-dashboard-${EXPECTED_ISO_DATE}.pdf"
+          PDF_FILE="market-pressure-gauge-${EXPECTED_ISO_DATE}.pdf"
           PDF_SOURCE="workflow-artifact/${PDF_FILE}"
           test -f "$PDF_SOURCE"
           PDF_SIZE="$(stat -c%s "$PDF_SOURCE")"
@@ -451,10 +454,11 @@ jobs:
         if: always()
         run: |
           {
-            echo "### GitHub Pages Deployment"
-            echo "- Dashboard generated: yes"
-            echo "- Dashboard report date: ${{ needs.publish.outputs.report_date }}"
-            echo "- Stress score: ${{ needs.publish.outputs.stress_score }}"
+            echo "### Weekly Market Pressure Gauge Pages Deployment"
+            echo "- Weekly gauge generated: yes"
+            echo "- Publication date: ${{ needs.publish.outputs.report_date }}"
+            echo "- Week of: ${{ needs.publish.outputs.week_of_date }}"
+            echo "- Market Pressure Score: ${{ needs.publish.outputs.stress_score }}"
             echo "- Dashboard commit SHA: ${{ needs.publish.outputs.dashboard_sha }}"
             echo "- Pages deployment: ${{ steps.deployment.outcome }}"
             echo "- Live site verified: ${{ steps.verify-live.outputs.verified || 'no' }}"
