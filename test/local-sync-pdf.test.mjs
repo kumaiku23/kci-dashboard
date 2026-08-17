@@ -165,9 +165,9 @@ test("Monday schedules use the intended Pacific retry windows", async () => {
   const scheduleEntries = [...plist.matchAll(/<key>Weekday<\/key><integer>(\d+)<\/integer><key>Hour<\/key><integer>(\d+)<\/integer><key>Minute<\/key><integer>(\d+)<\/integer>/g)]
     .map(([, weekday, hour, minute]) => ({ weekday: Number(weekday), hour: Number(hour), minute: Number(minute) }));
   assert.deepEqual(scheduleEntries, [
-    { weekday: 2, hour: 8, minute: 30 },
-    { weekday: 2, hour: 9, minute: 30 },
-    { weekday: 2, hour: 10, minute: 30 }
+    { weekday: 1, hour: 8, minute: 30 },
+    { weekday: 1, hour: 9, minute: 30 },
+    { weekday: 1, hour: 10, minute: 30 }
   ]);
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /- cron: "30 14 \* \* 1"/);
