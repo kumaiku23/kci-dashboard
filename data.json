@@ -52,7 +52,7 @@
     {
       "label": "Treasury Yields",
       "status": "orange",
-      "trend": "flat"
+      "trend": "up"
     },
     {
       "label": "Japanese Yields",
@@ -263,13 +263,13 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 4.7
+        "today": 4.71
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.25
+        "today": 5.28
       },
       {
         "label": "Japan 10Y (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "Into Monday, Treasury yields edged up modestly (10Y near ~4.7%, 30Y ~5.25%) even after a softer July inflation run (CPI on August 12 and PPI on August 13), while JGBs remain pinned near multi‑decade highs. HY spreads hover around ~280 bps, with persistent strains in private and consumer credit and ongoing CRE refinancing risks alongside heavy insider selling. Stay patient, liquid, and ready for forced‑selling opportunities.",
+  "takeaway": "Into Monday, Treasury yields are edging higher (10Y near ~4.71%, 30Y ~5.28%) following last week’s softer inflation prints (CPI on August 12 and PPI on August 13), while JGBs remain pinned near multi‑decade highs. HY spreads hover around ~280 bps, with persistent strains in private and consumer credit and ongoing CRE refinancing risks alongside heavy insider selling. Stay patient, liquid, and ready for forced‑selling opportunities.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
