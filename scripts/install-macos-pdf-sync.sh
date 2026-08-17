@@ -47,8 +47,13 @@ main() {
 
   plutil -lint "$plist"
 
-  launchctl unload "$plist" >/dev/null 2>&1 || true
-  launchctl load "$plist"
+  local launch_domain="gui/$(id -u)"
+  launchctl bootout "$launch_domain/com.kci.dashboard-pdf-sync" >/dev/null 2>&1 || \
+    launchctl unload "$plist" >/dev/null 2>&1 || true
+  if ! launchctl bootstrap "$launch_domain" "$plist"; then
+    echo "Modern LaunchAgent bootstrap failed; trying the legacy load command." >&2
+    launchctl load "$plist"
+  fi
 
   cat <<INFO
 Installed LaunchAgent: $plist

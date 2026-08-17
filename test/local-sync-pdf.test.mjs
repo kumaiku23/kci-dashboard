@@ -8,6 +8,7 @@ import { test } from "node:test";
 const scriptPath = path.resolve("scripts/local-sync-pdf.sh");
 const plistTemplatePath = path.resolve("macos/com.kci.dashboard-pdf-sync.plist.example");
 const dailyWorkflowPath = path.resolve(".github/workflows/daily-dashboard.yml");
+const installerPath = path.resolve("scripts/install-macos-pdf-sync.sh");
 
 function shellQuote(value) {
   return `'${value.replace(/'/g, "'\\''")}'`;
@@ -303,4 +304,15 @@ test("non-Monday manual run records no_report_expected without generating a PDF"
     pdf: null
   });
   assert.equal(spawnSync("test", ["-e", path.join(fixture.driveDir, "2026-08-10.pdf")]).status, 1);
+});
+
+
+test("local Chrome runs with an isolated profile and installer reloads the LaunchAgent", async () => {
+  const [script, installer] = await Promise.all([
+    readFile(scriptPath, "utf8"),
+    readFile(installerPath, "utf8")
+  ]);
+  assert.match(script, /--user-data-dir="\$tmp_dir\/chrome-profile"/);
+  assert.match(installer, /launchctl bootstrap/);
+  assert.match(installer, /launchctl load/);
 });

@@ -403,7 +403,7 @@ SUMMARY
     sleep 1
   done
 
-  "$chrome" --headless --disable-gpu --no-sandbox --print-to-pdf="$tmp_pdf" "http://127.0.0.1:$DASHBOARD_PORT/"
+  "$chrome" --headless --disable-gpu --no-sandbox --no-first-run --user-data-dir="$tmp_dir/chrome-profile" --print-to-pdf="$tmp_pdf" "http://127.0.0.1:$DASHBOARD_PORT/"
   pdf_size="$(validate_pdf "$tmp_pdf")"
   copy_pdf_to_destination "$tmp_pdf" "$GOOGLE_DRIVE_PDF_DIR" "$KCI_SYNC_EXPECTED_DATE"
   write_local_status "success" "$KCI_SYNC_EXPECTED_DATE.pdf"
