@@ -2,7 +2,7 @@
   "title": "Weekly Market Pressure Gauge",
   "date": "August 31, 2026",
   "composite": {
-    "stressScore": 8.2,
+    "stressScore": 8.3,
     "opportunityScore": 8.5,
     "regime": "Late Cycle",
     "regimeTrend": "Stable",
@@ -12,7 +12,7 @@
   "stressDrivers": [
     {
       "label": "Rates",
-      "value": 8.2
+      "value": 8.3
     },
     {
       "label": "Liquidity",
@@ -40,7 +40,7 @@
     "stress": [
       8,
       8.5,
-      8.2
+      8.3
     ],
     "opportunity": [
       7.1,
@@ -72,7 +72,7 @@
     {
       "label": "Gold",
       "status": "yellow",
-      "trend": "up"
+      "trend": "down"
     },
     {
       "label": "Inflation",
@@ -219,7 +219,7 @@
         "label": "Stress / Pressure",
         "d90": 8,
         "d30": 8.5,
-        "today": 8.2,
+        "today": 8.3,
         "goodWhenUp": false
       },
       {
@@ -233,7 +233,7 @@
         "label": "Treasury Stress",
         "d90": 7.8,
         "d30": 8.8,
-        "today": 8.2,
+        "today": 8.3,
         "goodWhenUp": false
       },
       {
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Monday, August 31, 2026, Treasury yields remain elevated (10Y near ~4.76%, 30Y ~5.21%) while Japan’s 10Y JGB trades around ~2.93% near multi‑decade highs. Brent crude has pushed back above ~$90 amid renewed U.S. strikes on Iranian sites in the Strait of Hormuz, adding to energy‑driven headline risks. HY spreads remain tight near ~270 bps (latest through late August), with persistent strains in private and consumer credit and ongoing CRE refinancing risks alongside heavy insider selling. Fed Chair Warsh’s Jackson Hole remarks kept a hawkish bias in focus. Stay patient, liquid, and ready for forced‑selling opportunities.",
+  "takeaway": "As of Monday, August 31, 2026, Treasury yields remain elevated (10Y near ~4.76%, 30Y ~5.21%) while Japan’s 10Y JGB trades around ~2.93% near multi‑decade highs. Brent crude is back above ~$90 following renewed U.S. strikes on Iranian sites in the Strait of Hormuz and retaliatory fire, keeping an inflation premium in energy. HY spreads remain tight near ~270 bps through late August, even as gold has pulled back toward two‑week lows after Fed Chair Warsh’s hawkish Jackson Hole remarks. Stay patient, liquid, and ready for forced‑selling opportunities.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
