@@ -1,11 +1,11 @@
-name: Weekly Market Pressure Gauge
+name: Daily Market Pressure Gauge
 
 on:
   workflow_dispatch:
   schedule:
-    # 7:30 AM America/Los_Angeles. UTC shifts with daylight saving time.
-    - cron: "30 14 * * 1"
-    - cron: "30 15 * * 1"
+    # 7:30 AM America/Los_Angeles, Monday-Friday. UTC shifts with daylight saving time.
+    - cron: "30 14 * * 1-5"
+    - cron: "30 15 * * 1-5"
 
 permissions:
   contents: write
@@ -43,8 +43,8 @@ jobs:
 
           SCHEDULE="${{ github.event.schedule }}"
           LOCAL_ZONE="$(date +%Z)"
-          if { [ "$SCHEDULE" = "30 14 * * 1" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
-             { [ "$SCHEDULE" = "30 15 * * 1" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
+          if { [ "$SCHEDULE" = "30 14 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
+             { [ "$SCHEDULE" = "30 15 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -84,9 +84,9 @@ jobs:
           fi
 
           for attempt in 1 2 3; do
-            echo "Weekly gauge generation attempt $attempt of 3"
+            echo "Daily gauge generation attempt $attempt of 3"
             if node scripts/generate-dashboard.mjs 2>&1 | tee "$RUNNER_TEMP/generate-dashboard-attempt-$attempt.log"; then
-              echo "Weekly gauge generation succeeded on attempt $attempt."
+              echo "Daily gauge generation succeeded on attempt $attempt."
               exit 0
             fi
 
@@ -99,12 +99,12 @@ jobs:
             fi
 
             if [ "$attempt" -lt 3 ]; then
-              echo "Weekly gauge generation failed on attempt $attempt; retrying in 30 seconds."
+              echo "Daily gauge generation failed on attempt $attempt; retrying in 30 seconds."
               sleep 30
             fi
           done
 
-          echo "::error::Weekly gauge generation failed after 3 attempts. Restored existing data.json; no partial files will be committed."
+          echo "::error::Daily gauge generation failed after 3 attempts. Restored existing data.json; no partial files will be committed."
           exit 1
 
       - name: Stale-dashboard watchdog
@@ -261,7 +261,7 @@ jobs:
           echo "heartbeat.json status: ${{ steps.report.outputs.heartbeat_status }}"
           echo "History filename: ${{ steps.validate.outputs.history_file }}"
           {
-            echo "### Weekly Market Pressure Gauge"
+            echo "### Daily Market Pressure Gauge"
             echo "- Publication date: ${{ steps.validate.outputs.report_date }}"
             echo "- Week of: ${{ steps.validate.outputs.week_of_date }}"
             echo "- Commit SHA: ${{ steps.report.outputs.sha }}"
@@ -293,9 +293,9 @@ jobs:
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
-            echo "✅ Weekly Market Pressure Gauge Published Successfully"
+            echo "✅ Daily Market Pressure Gauge Published Successfully"
           else
-            echo "❌ Weekly Market Pressure Gauge Publish Failed"
+            echo "❌ Daily Market Pressure Gauge Publish Failed"
           fi
 
   deploy-pages:
@@ -454,8 +454,8 @@ jobs:
         if: always()
         run: |
           {
-            echo "### Weekly Market Pressure Gauge Pages Deployment"
-            echo "- Weekly gauge generated: yes"
+            echo "### Daily Market Pressure Gauge Pages Deployment"
+            echo "- Daily gauge generated: yes"
             echo "- Publication date: ${{ needs.publish.outputs.report_date }}"
             echo "- Week of: ${{ needs.publish.outputs.week_of_date }}"
             echo "- Market Pressure Score: ${{ needs.publish.outputs.stress_score }}"
