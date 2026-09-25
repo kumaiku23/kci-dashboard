@@ -2,6 +2,9 @@ name: Daily Market Pressure Gauge
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/daily-dashboard.yml"
   schedule:
     # 7:30 AM America/Los_Angeles, Monday-Friday. UTC shifts with daylight saving time.
     - cron: "30 14 * * 1-5"
@@ -21,7 +24,6 @@ env:
 
 jobs:
   publish:
-    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -36,7 +38,7 @@ jobs:
       - name: Check schedule window
         id: schedule
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event_name }}" = "push" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
