@@ -1,21 +1,21 @@
 # Weekly Market Pressure Gauge
 
-A capital allocator's weekly weather report, powered by `data.json`. It describes direction, magnitude, breadth, and persistence of market pressure and emerging opportunity; it is not a market-timing signal.
+A capital allocator's market weather report, powered by `data.json`. It describes direction, magnitude, breadth, and persistence of market pressure and emerging opportunity; it is not a market-timing signal.
 
-The gauge publishes automatically every Monday at 7:30 AM America/Los_Angeles. Its displayed subtitle is `Week of [Monday date]`; a manual midweek publication retains its actual archive date while displaying the Monday that starts that report week.
+The gauge publishes automatically every weekday at 7:30 AM America/Los_Angeles. Each daily reading is archived by its publication date. Its displayed subtitle remains `Week of [Monday date]` so the daily readings stay grouped in the same weekly market context.
 
-## Weekly Publishing Setup
+## Daily Publishing Setup
 
 1. Go to Settings -> Secrets and variables -> Actions.
 2. Add the repository secret `OPENAI_API_KEY`.
 3. To retain the optional GitHub Actions Drive upload, create a Google Cloud service account, enable Google Drive API, create a JSON key, and share the target Drive folder with its service account email as Editor.
 4. Add `GOOGLE_SERVICE_ACCOUNT_JSON` and `GOOGLE_DRIVE_FOLDER_ID` as repository secrets.
-5. Run the `Weekly Market Pressure Gauge` workflow manually once from the Actions tab.
+5. Run the `Daily Market Pressure Gauge` workflow manually once from the Actions tab.
 6. Confirm `data.json`, `history/YYYY-MM-DD.json`, `history/index.json`, `heartbeat.json`, and the date-specific PDF update.
 
 ## Local Mac PDF Sync
 
-The local Mac sync archives the published weekly PDF to your Google Drive for Desktop folder while GitHub Actions remains responsible for `data.json` and history publishing.
+The local Mac sync archives Monday's PDF to your Google Drive for Desktop folder while GitHub Actions remains responsible for daily `data.json`, history, and PDF publishing.
 
 1. Install Google Drive for Desktop and confirm its target folder is syncing under `~/Library/CloudStorage/`.
 2. Optionally copy `.local-dashboard.env.example` to `.local-dashboard.env` and set the KCI folders. The installer can also discover a single Google Drive account and create `KCI/PDFs`, `KCI/JSON`, and `KCI/Monthly`.
