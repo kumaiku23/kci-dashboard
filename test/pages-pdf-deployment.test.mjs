@@ -25,6 +25,8 @@ test("Pages deploy downloads and publishes the generated PDF", async () => {
   assert.match(workflow, /PDF_SOURCE="workflow-artifact\/\$\{PDF_FILE\}"/);
   assert.match(workflow, /test -f "\$PDF_SOURCE"/);
   assert.match(workflow, /\[ "\$PDF_SIZE" -le 10240 \]/);
+  assert.match(workflow, /--virtual-time-budget=10000/);
+  assert.match(workflow, /--run-all-compositor-stages-before-draw/);
   assert.match(workflow, /cp "\$PDF_SOURCE" _site\/latest\.pdf/);
   assert.match(workflow, /cp "\$PDF_SOURCE" "_site\/reports\/\$\{EXPECTED_ISO_DATE\}\.pdf"/);
   assert.match(workflow, /test -f _site\/latest\.pdf/);
