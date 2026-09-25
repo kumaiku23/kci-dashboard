@@ -158,7 +158,7 @@ test("cleanup trap tolerates unset temp directory", () => {
   assert.equal(result.status, 0, result.stderr);
 });
 
-test("Monday schedules use the intended Pacific retry windows", async () => {
+test("daily publishing and Monday PDF sync use the intended Pacific windows", async () => {
   const [plist, workflow] = await Promise.all([
     readFile(plistTemplatePath, "utf8"),
     readFile(dailyWorkflowPath, "utf8")
@@ -171,11 +171,10 @@ test("Monday schedules use the intended Pacific retry windows", async () => {
     { weekday: 1, hour: 10, minute: 30 }
   ]);
   assert.match(workflow, /workflow_dispatch:/);
-  assert.match(workflow, /- cron: "30 14 \* \* 1"/);
-  assert.match(workflow, /- cron: "30 15 \* \* 1"/);
-  assert.doesNotMatch(workflow, /1-5/);
-  assert.match(workflow, /\[ "\$SCHEDULE" = "30 14 \* \* 1" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
-  assert.match(workflow, /\[ "\$SCHEDULE" = "30 15 \* \* 1" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
+  assert.match(workflow, /- cron: "30 14 \* \* 1-5"/);
+  assert.match(workflow, /- cron: "30 15 \* \* 1-5"/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 14 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 15 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
 });
 
 test("stale dashboard waits successfully without generating a PDF", async () => {
