@@ -3,6 +3,7 @@ name: Daily Market Pressure Gauge
 on:
   workflow_dispatch:
   push:
+    # An intentional workflow edit also publishes a fresh report immediately.
     paths:
       - ".github/workflows/daily-dashboard.yml"
   schedule:
