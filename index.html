@@ -381,7 +381,6 @@ function specTable(rows){
 
 function build(d){
   const sc=d.composite, sp=d.sparklines;
-  const weekOf=weekOfFromReportDate(d.date);
   const stressC=scoreColor(sc.stressScore), oppC=oppColor(sc.opportunityScore);
 
   // PAGE 1 — SUMMARY
@@ -398,9 +397,9 @@ function build(d){
     <div class="mast">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
         <div>
-          <div class="eyebrow">A capital allocator's weekly weather report</div>
+          <div class="eyebrow">A capital allocator's daily weather report</div>
           <h1>${esc(d.title)}</h1>
-          <div class="week-of">Week of ${esc(weekOf || d.date)}</div>
+          <div class="week-of">As of ${esc(d.date)}</div>
         </div>
         ${logoLink(`<img src="${LOGO}" style="height:52px;margin-top:4px" alt="Kuma Capital Investments, Inc.">`)}
       </div>
