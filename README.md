@@ -2,7 +2,7 @@
 
 A capital allocator's market weather report, powered by `data.json`. It describes direction, magnitude, breadth, and persistence of market pressure and emerging opportunity; it is not a market-timing signal.
 
-The gauge publishes automatically every weekday at 7:30 AM America/Los_Angeles. Each daily reading is archived by its publication date. Its displayed subtitle remains `Week of [Monday date]` so the daily readings stay grouped in the same weekly market context.
+The gauge publishes automatically every weekday at 7:30 AM America/Los_Angeles. Each daily reading is archived by its publication date, and the dashboard and PDF display `As of [publication date]`.
 
 ## Daily Publishing Setup
 
