@@ -42,11 +42,11 @@ test("live Pages verification requires today's PDF to be public and nontrivial",
 });
 
 
-test("weekly public naming and date-specific PDF control remain visible", async () => {
+test("daily report date and date-specific PDF control remain visible", async () => {
   const index = await readFixture(indexPath);
   assert.match(index, /Weekly Market Pressure Gauge/);
   assert.match(index, /Market Pressure Score/);
-  assert.match(index, /Week of \${esc\(weekOf \|\| d\.date\)\}/);
-  assert.match(index, /function weekOfFromReportDate/);
+  assert.match(index, /As of \${esc\(d\.date\)\}/);
+  assert.doesNotMatch(index, /Week of \${esc\(weekOf \|\| d\.date\)\}/);
   assert.match(index, /stressScore/);
 });
