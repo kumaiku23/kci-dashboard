@@ -263,19 +263,19 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 5.12
+        "today": 5.14
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.44
+        "today": 5.46
       },
       {
         "label": "Japan 10Y (%)",
         "d90": 2.25,
         "d30": 2.79,
-        "today": 3.07
+        "today": 3.08
       }
     ],
     "credit": [
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Thursday, September 24, 2026, Treasury yields pushed to multi‑decade highs with the 10Y around ~5.12% and the 30Y near ~5.44% intraday. Japan’s 10Y JGB climbed above 3.0% (roughly ~3.07%) after last week’s BOJ rate hike. Brent jumped to roughly ~$107 while WTI hovered in the low‑$90s. US high‑yield OAS remains tight around ~270–275 bps as of September 22–23. August CPI printed 3.4% year over year. Stay patient, liquid, and ready for forced‑selling opportunities. (federalreserve.gov; home.treasury.gov; reuters.com; investing.com; ycharts.com; bls.gov)",
+  "takeaway": "As of Thursday, September 24, 2026, Treasury yields notched multi‑decade highs with the 10Y around ~5.14% and the 30Y near ~5.46% intraday. Japan’s 10Y JGB traded a touch above 3.0% (~3.08%) following last week’s BOJ rate hike to a 31‑year‑high policy rate. Brent closed roughly ~$106–$107 while WTI held in the mid‑$90s after headline‑driven spikes; US high‑yield OAS remains tight around ~270–275 bps through Sep 22–24. August CPI printed 3.4% year over year. Stay patient, liquid, and ready for forced‑selling opportunities. (home.treasury.gov; reuters.com; marketscreener.com; investing.com; yahoo.com/finance; bls.gov)",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
