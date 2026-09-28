@@ -1,11 +1,11 @@
 {
-  "lastRun": "2026-09-25T11:47:42-07:00",
+  "lastRun": "2026-09-28T13:41:13-07:00",
   "status": "success",
-  "reportDate": "September 25, 2026",
-  "stressScore": 8.7,
-  "opportunityScore": 8.6,
-  "commit": "89a32a22452822cc33adad96ed8f4bbcb71286f5",
-  "historyFile": "history/2026-09-25.json",
-  "pdfFile": "market-pressure-gauge-2026-09-25.pdf",
+  "reportDate": "September 28, 2026",
+  "stressScore": 8.8,
+  "opportunityScore": 8.7,
+  "commit": "f44103a3a2e9aabe5035aadfa7f34c36a07b3be4",
+  "historyFile": "history/2026-09-28.json",
+  "pdfFile": "market-pressure-gauge-2026-09-28.pdf",
   "driveUploadStatus": "skipped"
 }
