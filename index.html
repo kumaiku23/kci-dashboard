@@ -349,24 +349,7 @@ function dirCell(row){
   return `<span class="arrow-flat">▬</span>`;
 }
 
-function foot(p){ return `<div class="page-foot"><span>Kuma Capital Investments, Inc. · kumacapitalinvestments.com</span><span>Page ${p} of 5</span></div>`; }
-
-/* ---------- Insider sentiment ---------- */
-const fmtDollar = n => n===0 ? '0' : n.toLocaleString('en-US');
-function insiderSignal(buying, selling, th){
-  if(buying===0 && selling===0) return {key:'yellow', label:'No activity', ratio:'—'};
-  if(buying===0) return {key:'red', label:'Sell-only', ratio:'∞'};
-  const r = selling/buying;
-  const rTxt = r>=100 ? Math.round(r)+'×' : r.toFixed(1)+'×';
-  if(r<=th.greenMaxRatio) return {key:'green', label:'Buying', ratio:rTxt};
-  if(r>=th.redMinRatio) return {key:'red', label:'Sell-heavy', ratio:rTxt};
-  return {key:'yellow', label:'Mixed', ratio:rTxt};
-}
-function insiderComposite(sectors, th){
-  const tb = sectors.reduce((a,s)=>a+s.buying,0);
-  const ts = sectors.reduce((a,s)=>a+s.selling,0);
-  return {totalBuy:tb, totalSell:ts, sig:insiderSignal(tb, ts, th)};
-}
+function foot(p){ return `<div class="page-foot"><span>Kuma Capital Investments, Inc. · kumacapitalinvestments.com</span><span>Page ${p} of 4</span></div>`; }
 
 function trendTable(rows){
   return `<table><thead><tr><th>Indicator</th><th class="num-col">90D</th><th class="num-col">30D</th><th class="num-col">Today</th><th class="num-col">Trend</th></tr></thead><tbody>`
@@ -500,61 +483,7 @@ function build(d){
     ${foot(3)}
   </section>`;
 
-  // PAGE 4 — INSIDER SENTIMENT
-  let page4ins='';
-  if(d.insiderActivity && d.insiderActivity.sectors && d.insiderActivity.sectors.length){
-    const ia=d.insiderActivity;
-    const th=ia.thresholds||{greenMaxRatio:2,redMinRatio:12};
-    const rows=ia.sectors.map(s=>{
-      const sig=s.signal ? {key:s.signal,label:{green:'Buying',yellow:'Mixed',red:'Sell-heavy'}[s.signal]||s.signal,ratio:insiderSignal(s.buying,s.selling,th).ratio} : insiderSignal(s.buying,s.selling,th);
-      const st=STATUS[sig.key]||STATUS.yellow;
-      return `<tr><td>${esc(s.label)}</td>
-        <td class="num-col">${fmtDollar(s.buying)}</td>
-        <td class="num-col">${fmtDollar(s.selling)}</td>
-        <td class="num-col">${sig.ratio}</td>
-        <td class="num-col"><span class="status-cell"><span class="dot" style="background:${st.c}"></span><span class="badge" style="background:${st.bg};color:${st.c}">${esc(sig.label)}</span></span></td></tr>`;
-    }).join('');
-    const comp=insiderComposite(ia.sectors, th);
-    const cst=STATUS[comp.sig.key]||STATUS.yellow;
-    const counts=ia.sectors.reduce((a,s)=>{
-      const k=s.signal||insiderSignal(s.buying,s.selling,th).key; a[k]=(a[k]||0)+1; return a;
-    },{});
-    page4ins=`<section class="page">
-      <div class="mast" style="display:flex;justify-content:space-between;align-items:center"><div><div class="eyebrow">${esc(d.date)}</div><h1 style="font-size:22px">Insider Sentiment</h1></div>${logoLink(`<img src="${LOGO}" style="height:32px" alt="KCI">`)}</div>
-      <div class="secthead">Insider buying &amp; selling by sector — ${esc(ia.asOf||'')}</div>
-      <table><thead><tr><th>Sector</th><th class="num-col">Buying ($)</th><th class="num-col">Selling ($)</th><th class="num-col">Sell / Buy</th><th class="num-col">Signal</th></tr></thead>
-        <tbody>${rows}</tbody></table>
-      <div style="display:flex;gap:18px;margin:10px 0 16px;font-size:10px;color:var(--muted);align-items:center">
-        <span><span class="dot" style="background:#15803d;display:inline-block;vertical-align:-1px"></span> Buying — insider buying exceeds norms (≤ ${th.greenMaxRatio}× sell/buy)</span>
-        <span><span class="dot" style="background:#b88407;display:inline-block;vertical-align:-1px"></span> Mixed</span>
-        <span><span class="dot" style="background:#c62828;display:inline-block;vertical-align:-1px"></span> Sell-heavy (≥ ${th.redMinRatio}×)</span>
-      </div>
-      <div class="grid2">
-        <div class="regime-box">
-          <div class="secthead" style="border:none;padding:0;margin-bottom:6px">Composite read</div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <span class="dot" style="background:${cst.c};width:16px;height:16px"></span>
-            <span style="font-family:var(--serif);font-size:18px;font-weight:700">${esc(comp.sig.label)}</span>
-            <span style="font-size:12px;color:var(--muted)">overall sell/buy ${comp.sig.ratio}</span>
-          </div>
-          <div style="font-size:11.5px;margin-top:8px;color:var(--muted)">
-            Total buying ${fmtDollar(comp.totalBuy)} vs selling ${fmtDollar(comp.totalSell)} ·
-            ${counts.green||0} green / ${counts.yellow||0} yellow / ${counts.red||0} red</div>
-        </div>
-        <div class="regime-box">
-          <div class="secthead" style="border:none;padding:0;margin-bottom:6px">How to read it</div>
-          <div style="font-size:11.5px;line-height:1.55;color:var(--ink)">
-            Insiders always sell more than they buy, so the signal is the <b>ratio</b>, not the raw totals.
-            A surge of green in cyclicals (industrials, energy, financials) tends to appear near maximum pessimism.
-            A wall of red during expensive markets suggests optimism is running ahead of fundamentals.
-            Watch for <b>shifts</b> across weeks, not any single print.</div>
-        </div>
-      </div>
-      ${foot(4)}
-    </section>`;
-  }
-
-  // PAGE 5 — OPPORTUNITY + ACTIONS
+  // PAGE 4 — OPPORTUNITY + ACTIONS
   const fs = d.opportunity.forcedSelling.map(x=>`<tr><td>${esc(x.label)}</td>
     <td class="num-col"><b>${x.score}/10</b></td>
     <td><span class="b-bar" style="display:block"><span class="b-fill" style="width:${x.score*10}%;background:#15803d"></span></span></td></tr>`).join('');
@@ -587,10 +516,10 @@ function build(d){
       <div class="act-card dont"><h4>${esc(d.actions.doNotYetLabel||'Worth Avoiding')}</h4><ul>${doNot}</ul></div>
     </div>
     ${d.disclosure ? `<div class="disclosure"><b>Important disclosures.</b> ${esc(d.disclosure)}</div>` : ''}
-    ${foot(5)}
+    ${foot(4)}
   </section>`;
 
-  return page1+page2+page3+page4ins+page4;
+  return page1+page2+page3+page4;
 }
 
 const FALLBACK = TEMPLATE;
