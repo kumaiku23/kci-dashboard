@@ -52,3 +52,11 @@ test("daily report date and date-specific PDF control remain visible", async () 
   assert.doesNotMatch(index, /Week of \${esc\(weekOf \|\| d\.date\)\}/);
   assert.match(index, /stressScore/);
 });
+
+test("report excludes insider sentiment and contains four pages", async () => {
+  const index = await readFixture(indexPath);
+  assert.doesNotMatch(index, /Insider Sentiment/);
+  assert.doesNotMatch(index, /page4ins/);
+  assert.match(index, /Page \$\{p\} of 4/);
+  assert.match(index, /return page1\+page2\+page3\+page4/);
+});
