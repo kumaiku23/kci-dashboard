@@ -1,9 +1,9 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "October 12, 2026",
+  "date": "October 13, 2026",
   "composite": {
-    "stressScore": 8.9,
-    "opportunityScore": 8.9,
+    "stressScore": 9,
+    "opportunityScore": 9,
     "regime": "Late Cycle",
     "regimeTrend": "Stable",
     "stance": "Patient & Opportunistic",
@@ -12,15 +12,15 @@
   "stressDrivers": [
     {
       "label": "Rates",
-      "value": 9
+      "value": 9.1
     },
     {
       "label": "Liquidity",
-      "value": 8.4
+      "value": 8.3
     },
     {
       "label": "Credit",
-      "value": 7.5
+      "value": 7.6
     },
     {
       "label": "Consumer",
@@ -40,12 +40,12 @@
     "stress": [
       8,
       8.5,
-      8.9
+      9
     ],
     "opportunity": [
       7.1,
       8.2,
-      8.9
+      9
     ]
   },
   "trafficLights": [
@@ -219,14 +219,14 @@
         "label": "Stress / Pressure",
         "d90": 8,
         "d30": 8.5,
-        "today": 8.9,
+        "today": 9,
         "goodWhenUp": false
       },
       {
         "label": "Opportunity",
         "d90": 7.1,
         "d30": 8.2,
-        "today": 8.9,
+        "today": 9,
         "goodWhenUp": true
       },
       {
@@ -263,19 +263,19 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 5.24
+        "today": 5.2
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.61
+        "today": 5.56
       },
       {
         "label": "Japan 10Y (%)",
         "d90": 2.25,
         "d30": 2.79,
-        "today": 3.02
+        "today": 3
       }
     ],
     "credit": [
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Monday, October 12, 2026, the U.S. cash Treasury market is closed for the Columbus Day/Indigenous Peoples’ Day holiday. Benchmark yields are near Friday’s closes: the 10Y around 5.24% and the 30Y near 5.60%–5.61%. Japan’s 10Y JGB hovers near ~3.02% after last week’s upswing. Brent crude trades roughly $104–106 and WTI about $90–92. US high‑yield OAS remains contained near ~310–315 bps. August CPI printed +3.4% y/y with core at +2.4% y/y; September CPI is scheduled for Wednesday, October 14, 2026, 8:30 a.m. ET. Bottom line: Rates remain the dominant pressure driver; today’s holiday‑quiet session doesn’t change the late‑cycle, fragile regime—stay patient, liquid, and ready for forced‑selling opportunities.",
+  "takeaway": "As of Tuesday, October 13, 2026, Treasury yields eased slightly from last week’s peaks: the 10Y hovers near ~5.19%–5.21% and the 30Y around ~5.55%–5.57%. Japan’s 10Y JGB is roughly ~3.00%. Brent crude trades around $105–106 and WTI about $92–94. US high‑yield OAS remains contained near ~310–315 bps. August CPI printed near +3.4% y/y with core around +2.4% y/y; September CPI is scheduled for Wednesday, October 14, 2026, at 8:30 a.m. ET. Bottom line: Rates remain the dominant pressure driver; despite today’s modest pullback, the late‑cycle, fragile regime persists—stay patient, liquid, and ready for forced‑selling opportunities.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
