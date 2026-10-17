@@ -187,7 +187,8 @@ jobs:
         if: steps.schedule.outputs.run == 'true'
         id: report
         run: |
-          if git diff --quiet -- data.json history/index.json history/*.json; then
+          UNTRACKED_HISTORY="$(git ls-files --others --exclude-standard -- 'history/*.json')"
+          if git diff --quiet -- data.json history/index.json history/*.json && [ -z "$UNTRACKED_HISTORY" ]; then
             echo "No dashboard changes to commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
