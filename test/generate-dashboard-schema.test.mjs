@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { inferSchema, normalizeDashboardForSchema } from "../scripts/generate-dashboard.mjs";
+import {
+  buildRollingPressureSeries,
+  inferSchema,
+  normalizeDashboardForSchema
+} from "../scripts/generate-dashboard.mjs";
 
 async function currentDashboard() {
   return JSON.parse(await readFile(new URL("../data.json", import.meta.url), "utf8"));
@@ -108,4 +112,20 @@ test("generated schema rejects unexpected keys", async () => {
   const errors = validateAgainstSchema(inferSchema(dashboard), candidate);
 
   assert.ok(errors.some((error) => error.message === "unexpected property"));
+});
+
+test("rolling pressure series keeps the newest 365 readings in chronological order", () => {
+  const readings = Array.from({ length: 367 }, (_, index) => ({
+    date: new Date(Date.UTC(2025, 0, index + 1)).toISOString().slice(0, 10),
+    score: Number((5 + index / 100).toFixed(2))
+  })).reverse();
+
+  const series = buildRollingPressureSeries(readings);
+
+  assert.equal(series.window, 365);
+  assert.equal(series.count, 365);
+  assert.equal(series.points.length, 365);
+  assert.ok(series.points[0].date < series.points.at(-1).date);
+  assert.equal(series.updated, series.points.at(-1).date);
+  assert.deepEqual(series.points.at(-1), readings[0]);
 });
