@@ -76,6 +76,7 @@
   .scorecard .num{font-family:var(--serif);font-size:46px;line-height:1;font-weight:700}
   .scorecard .num .of{font-size:18px;color:var(--faint);font-weight:400}
   .scorecard .spark{margin-top:4px}
+  .scorecard .trend-meta{margin-top:2px;font-size:9px;color:var(--muted);letter-spacing:.02em}
   .pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
     padding:3px 9px;border-radius:999px}
   .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line-strong);
@@ -327,14 +328,15 @@ function trendArrow(t){
 }
 
 function sparkline(series, color){
-  const w=128,h=38,pad=4;
-  const min=Math.min(...series),max=Math.max(...series),rng=(max-min)||1;
-  const step=(w-pad*2)/(series.length-1);
-  const pts=series.map((v,i)=>[pad+i*step, h-pad-((v-min)/rng)*(h-pad*2)]);
+  const values=Array.isArray(series) && series.length ? series : [0];
+  const w=300,h=52,pad=4;
+  const min=Math.min(...values),max=Math.max(...values),rng=(max-min)||1;
+  const step=values.length>1 ? (w-pad*2)/(values.length-1) : 0;
+  const pts=values.map((v,i)=>[values.length>1 ? pad+i*step : w/2, h-pad-((v-min)/rng)*(h-pad*2)]);
   const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   const area=path+` L ${pts[pts.length-1][0].toFixed(1)} ${h-pad} L ${pad} ${h-pad} Z`;
   const last=pts[pts.length-1];
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  return `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
     <path d="${area}" fill="${color}" opacity="0.10"/>
     <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3" fill="${color}"/>
@@ -395,6 +397,7 @@ function build(d){
         <div class="row"><div class="num" style="color:${stressC}">${sc.stressScore}<span class="of">/10</span></div>
           <span class="pill" style="background:${stressC};color:#fff">${sc.stressScore>=8.5?'High Risk':sc.stressScore>=7?'Elevated':sc.stressScore>=5?'Watch':'Calm'}</span></div>
         <div class="spark">${sparkline(sp.stress, stressC)}</div>
+        <div class="trend-meta">Rolling daily history · ${sp.stress.length} of 365 readings</div>
       </div>
       <div class="scorecard">
         <div class="lbl">Opportunity Score</div>
@@ -546,6 +549,15 @@ function updatePdfDownload(reportDate) {
   if (link && isoDate) link.href = `./reports/${isoDate}.pdf`;
 }
 
+function applyPressureHistory(data, history) {
+  const points = Array.isArray(history?.points)
+    ? history.points.filter(point => Number.isFinite(point?.score)).slice(-365)
+    : [];
+  if (!points.length) return data;
+  data.sparklines.stress = points.map(point => point.score);
+  return data;
+}
+
 async function load(){
   const stage = document.getElementById('stage');
   let data = FALLBACK, note = '';
@@ -554,6 +566,10 @@ async function load(){
     if(res.ok){ data = await res.json(); }
     else { note = 'Showing bundled data (data.json returned ' + res.status + ').'; }
   }catch(e){ note = 'Showing bundled data (data.json not reachable — this is normal when opening the file locally).'; }
+  try{
+    const trend = await fetch('history/market-pressure-365.json?t=' + Date.now(), {cache:'no-store'});
+    if(trend.ok) data = applyPressureHistory(data, await trend.json());
+  }catch(e){}
   try{
     stage.innerHTML = build(data);
     updatePdfDownload(data.date);
