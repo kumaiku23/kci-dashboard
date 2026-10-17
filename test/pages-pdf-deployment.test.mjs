@@ -20,6 +20,7 @@ test("PDF control is a date-specific anchor, not a print button", async () => {
 test("Pages deploy downloads and publishes the generated PDF", async () => {
   const workflow = await readFixture(workflowPath);
 
+  assert.match(workflow, /git ls-files --others --exclude-standard -- 'history\/\*\.json'/);
   assert.match(workflow, /uses: actions\/download-artifact@v8\.0\.1/);
   assert.match(workflow, /name: market-pressure-gauge-\$\{\{ needs\.publish\.outputs\.iso_date \}\}/);
   assert.match(workflow, /PDF_SOURCE="workflow-artifact\/\$\{PDF_FILE\}"/);
