@@ -3,7 +3,7 @@ name: Daily Market Pressure Gauge
 on:
   workflow_dispatch:
   push:
-    # An intentional workflow edit republishes the report and rolling trend immediately.
+    # Intentional workflow edits also rebuild the report and rolling trend immediately.
     paths:
       - ".github/workflows/daily-dashboard.yml"
   schedule:
