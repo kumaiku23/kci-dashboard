@@ -3,7 +3,7 @@ name: Daily Market Pressure Gauge
 on:
   workflow_dispatch:
   push:
-    # An intentional workflow edit republishes the report immediately.
+    # An intentional workflow edit republishes the report and rolling trend immediately.
     paths:
       - ".github/workflows/daily-dashboard.yml"
   schedule:
@@ -340,6 +340,7 @@ jobs:
           test -f index.html
           test -f data.json
           test -f "history/${EXPECTED_ISO_DATE}.json"
+          test -f history/market-pressure-365.json
 
           PDF_FILE="market-pressure-gauge-${EXPECTED_ISO_DATE}.pdf"
           PDF_SOURCE="workflow-artifact/${PDF_FILE}"
@@ -358,6 +359,13 @@ jobs:
             }
             if (!Number.isFinite(data.composite?.stressScore)) {
               throw new Error("data.json is missing composite.stressScore");
+            }
+            const trend = JSON.parse(fs.readFileSync("history/market-pressure-365.json", "utf8"));
+            if (!Array.isArray(trend.points) || trend.points.length < 1 || trend.points.length > 365) {
+              throw new Error("rolling pressure history must contain 1-365 points");
+            }
+            if (trend.updated !== process.env.EXPECTED_ISO_DATE) {
+              throw new Error(`Expected rolling trend through ${process.env.EXPECTED_ISO_DATE}, found ${trend.updated}`);
             }
             process.stdout.write(`${data.date}\n${data.composite.stressScore}\n`);
           ' > "$RUNNER_TEMP/dashboard-metadata"
@@ -395,6 +403,7 @@ jobs:
           test -f _site/index.html
           test -f _site/data.json
           test -f "_site/history/${EXPECTED_ISO_DATE}.json"
+          test -f _site/history/market-pressure-365.json
           test -f _site/latest.pdf
           test -f "_site/reports/${EXPECTED_ISO_DATE}.pdf"
           test "$(stat -c%s _site/latest.pdf)" -gt 10240
