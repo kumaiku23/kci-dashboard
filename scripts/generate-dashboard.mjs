@@ -94,6 +94,21 @@ function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+export function buildRollingPressureSeries(readings, limit = 365) {
+  const points = readings
+    .filter((reading) => /^\d{4}-\d{2}-\d{2}$/.test(reading?.date) && Number.isFinite(reading?.score))
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-limit)
+    .map(({ date, score }) => ({ date, score }));
+
+  return {
+    window: limit,
+    count: points.length,
+    updated: points.at(-1)?.date || null,
+    points
+  };
+}
+
 export function normalizeDashboardForSchema(dashboard) {
   const normalized = structuredClone(dashboard);
 
@@ -437,6 +452,15 @@ async function updateHistory(root, dateIso, dashboard) {
 
   dates = Array.from(new Set([dateIso, ...dates])).sort((a, b) => b.localeCompare(a));
   await fs.writeFile(indexPath, stableJson(dates));
+
+  const readings = await Promise.all(
+    dates.slice(0, 365).map(async (date) => {
+      const snapshot = await readJson(path.join(historyDir, `${date}.json`));
+      return { date, score: snapshot.composite?.stressScore };
+    })
+  );
+  const rolling = buildRollingPressureSeries(readings);
+  await fs.writeFile(path.join(historyDir, "market-pressure-365.json"), stableJson(rolling));
 }
 
 async function main() {
