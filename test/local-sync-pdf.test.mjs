@@ -173,8 +173,13 @@ test("daily publishing and Monday PDF sync use the intended Pacific windows", as
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /- cron: "30 14 \* \* 1-5"/);
   assert.match(workflow, /- cron: "30 15 \* \* 1-5"/);
+  assert.match(workflow, /- cron: "30 17 \* \* 1-5"/);
+  assert.match(workflow, /- cron: "30 18 \* \* 1-5"/);
   assert.match(workflow, /\[ "\$SCHEDULE" = "30 14 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
   assert.match(workflow, /\[ "\$SCHEDULE" = "30 15 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 17 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PDT" \]/);
+  assert.match(workflow, /\[ "\$SCHEDULE" = "30 18 \* \* 1-5" \] && \[ "\$LOCAL_ZONE" = "PST" \]/);
+  assert.match(workflow, /Recovery check found stale or unavailable data/);
 });
 
 test("stale dashboard waits successfully without generating a PDF", async () => {
