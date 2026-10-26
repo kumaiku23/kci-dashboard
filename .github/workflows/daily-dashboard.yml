@@ -7,9 +7,12 @@ on:
     paths:
       - ".github/workflows/daily-dashboard.yml"
   schedule:
-    # 7:30 AM America/Los_Angeles, Monday-Friday. UTC shifts with daylight saving time.
+    # Primary: 7:30 AM America/Los_Angeles, Monday-Friday.
     - cron: "30 14 * * 1-5"
     - cron: "30 15 * * 1-5"
+    # Recovery: 10:30 AM America/Los_Angeles. It exits early when today's report is already live.
+    - cron: "30 17 * * 1-5"
+    - cron: "30 18 * * 1-5"
 
 permissions:
   contents: write
@@ -49,6 +52,29 @@ jobs:
           if { [ "$SCHEDULE" = "30 14 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
              { [ "$SCHEDULE" = "30 15 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Running the primary 7:30 AM Pacific publication."
+            exit 0
+          fi
+
+          if { [ "$SCHEDULE" = "30 17 * * 1-5" ] && [ "$LOCAL_ZONE" = "PDT" ]; } || \
+             { [ "$SCHEDULE" = "30 18 * * 1-5" ] && [ "$LOCAL_ZONE" = "PST" ]; }; then
+            TODAY="$(date '+%B %-d, %Y')"
+            LIVE_DATA="$RUNNER_TEMP/live-data.json"
+            LIVE_DATE=""
+            if curl --fail --silent --show-error --location --max-time 20 \
+              "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/data.json?run=${GITHUB_RUN_ID}" \
+              --output "$LIVE_DATA"; then
+              LIVE_DATE="$(node -e 'try { const d = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(d.date || ""); } catch {}' "$LIVE_DATA")"
+            fi
+
+            if [ "$LIVE_DATE" = "$TODAY" ]; then
+              echo "run=false" >> "$GITHUB_OUTPUT"
+              echo "Recovery check skipped: today's report is already live."
+            else
+              echo "run=true" >> "$GITHUB_OUTPUT"
+              echo "Recovery check found stale or unavailable data (expected $TODAY, found ${LIVE_DATE:-unavailable})."
+            fi
+            exit 0
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
             echo "Skipping duplicate daylight-saving schedule: $SCHEDULE fired while America/Los_Angeles is $LOCAL_ZONE."
