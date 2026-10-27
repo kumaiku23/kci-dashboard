@@ -1,11 +1,11 @@
 {
-  "lastRun": "2026-10-26T10:42:38-07:00",
+  "lastRun": "2026-10-27T12:32:30-07:00",
   "status": "success",
-  "reportDate": "October 26, 2026",
+  "reportDate": "October 27, 2026",
   "stressScore": 9.2,
   "opportunityScore": 9.1,
-  "commit": "585432f9dbfd2f3cde7904069888c058c4436c97",
-  "historyFile": "history/2026-10-26.json",
-  "pdfFile": "market-pressure-gauge-2026-10-26.pdf",
+  "commit": "c1f5b540921bb887d52980da9d44a05e8d2a064f",
+  "historyFile": "history/2026-10-27.json",
+  "pdfFile": "market-pressure-gauge-2026-10-27.pdf",
   "driveUploadStatus": "skipped"
 }
