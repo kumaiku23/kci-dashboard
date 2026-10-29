@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "October 28, 2026",
+  "date": "October 29, 2026",
   "composite": {
     "stressScore": 9.2,
     "opportunityScore": 9.1,
@@ -263,7 +263,7 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 4.99
+        "today": 4.98
       },
       {
         "label": "US 30Y (%)",
@@ -275,7 +275,7 @@
         "label": "Japan 10Y (%)",
         "d90": 2.25,
         "d30": 2.79,
-        "today": 2.83
+        "today": 2.84
       }
     ],
     "credit": [
@@ -283,7 +283,7 @@
         "label": "HY Spreads (bps)",
         "d90": 307,
         "d30": 279,
-        "today": 338
+        "today": 335
       },
       {
         "label": "Private Credit Defaults (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Wednesday, October 28, 2026, rates remain the dominant pressure driver. The U.S. 10Y Treasury yield is hovering around 4.99% with the 30Y near ~5.33%. Japan’s 10Y JGB is around ~2.83%. Brent crude trades near ~$116/bbl and WTI around ~$101–102. U.S. high‑yield OAS remains contained near ~335–340 bps despite elevated risk‑free rates. Gold is holding above $4,000/oz. Bottom line: the late‑cycle, fragile regime persists; keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates pressure duration‑sensitive assets.",
+  "takeaway": "As of Thursday, October 29, 2026, rates remain the dominant pressure driver. The U.S. 10Y Treasury yield is hovering around ~4.98% with the 30Y near ~5.33%. Japan’s 10Y JGB is around ~2.84%. Brent crude trades near ~$113–114/bbl and WTI around ~$100–102. U.S. high‑yield OAS remains contained near ~330–340 bps despite elevated risk‑free rates. Gold is holding above $4,000/oz. Bottom line: the late‑cycle, fragile regime persists; keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates pressure duration‑sensitive assets.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
