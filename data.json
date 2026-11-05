@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 4, 2026",
+  "date": "November 5, 2026",
   "composite": {
     "stressScore": 9.2,
     "opportunityScore": 9.1,
@@ -52,7 +52,7 @@
     {
       "label": "Treasury Yields",
       "status": "red",
-      "trend": "flat"
+      "trend": "down"
     },
     {
       "label": "Japanese Yields",
@@ -92,7 +92,7 @@
     {
       "label": "HY Credit Spreads",
       "status": "green",
-      "trend": "up"
+      "trend": "flat"
     },
     {
       "label": "Liquidity",
@@ -263,19 +263,19 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 4.9
+        "today": 4.86
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.3
+        "today": 5.29
       },
       {
         "label": "Japan 10Y (%)",
         "d90": 2.25,
         "d30": 2.79,
-        "today": 2.82
+        "today": 2.85
       }
     ],
     "credit": [
@@ -283,7 +283,7 @@
         "label": "HY Spreads (bps)",
         "d90": 307,
         "d30": 279,
-        "today": 343
+        "today": 336
       },
       {
         "label": "Private Credit Defaults (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Wednesday, November 4, 2026, rates remain the dominant pressure driver. The U.S. 10Y Treasury yield is fluctuating around ~4.88–4.95% with the 30Y near ~5.28–5.33%. Japan’s 10Y JGB is holding around ~2.8%. Brent crude is trading roughly in the ~$103–105/bbl range, with WTI around ~$95–100. U.S. high‑yield OAS remains contained near the ~335–345 bps area despite elevated risk‑free rates. Gold is firm near ~$4,000–4,050/oz. Bottom line: the late‑cycle, fragile regime persists; keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates continue to pressure duration‑sensitive assets.",
+  "takeaway": "As of Thursday, November 5, 2026, rates remain the dominant pressure driver. The U.S. 10Y Treasury yield is fluctuating around ~4.84–4.90% with the 30Y near ~5.27–5.33%. Japan’s 10Y JGB is holding around ~2.85%. Brent crude is trading roughly in the ~$94–97/bbl range, with WTI around ~$88–91. U.S. high‑yield OAS remains contained near the ~330–340 bps area despite elevated risk‑free rates. Gold is firm near ~$4,080–4,150/oz. Equities saw sharp tech-led volatility midweek, but the late‑cycle, fragile regime persists; keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates continue to pressure duration‑sensitive assets.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
