@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 6, 2026",
+  "date": "November 9, 2026",
   "composite": {
     "stressScore": 9.2,
     "opportunityScore": 9.1,
@@ -263,19 +263,19 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 4.85
+        "today": 4.88
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.28
+        "today": 5.26
       },
       {
         "label": "Japan 10Y (%)",
         "d90": 2.25,
         "d30": 2.79,
-        "today": 2.85
+        "today": 2.7
       }
     ],
     "credit": [
@@ -283,7 +283,7 @@
         "label": "HY Spreads (bps)",
         "d90": 307,
         "d30": 279,
-        "today": 336
+        "today": 348
       },
       {
         "label": "Private Credit Defaults (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Friday, November 6, 2026, rates remain the dominant pressure driver. The U.S. 10Y Treasury yield is fluctuating around ~4.84–4.89% with the 30Y near ~5.27–5.30%. ([apnews.com](https://apnews.com/article/bba6f0bf9035a6e6b1c4fef3e8230b89?utm_source=openai)) Japan’s 10Y JGB is holding roughly ~2.80–2.86% as the BOJ’s normalization path keeps upward pressure on term yields. ([ploveranalytics.com](https://ploveranalytics.com/rates.html?d=2026-09-10&utm_source=openai)) Brent crude is trading in the ~$97–100/bbl range, with WTI around ~$90–91. ([markets.ft.markitdigital.com](https://markets.ft.markitdigital.com/data/commodities/tearsheet/historical?c=Brent+Crude+Oil&utm_source=openai)) U.S. high‑yield OAS remains contained near the ~330–340 bps area despite elevated risk‑free rates. ([fred.stlouisfed.org](https://fred.stlouisfed.org/graph/?graph_id=1457533&utm_source=openai)) Gold is firm around ~$4,040–4,100/oz. ([markets.ft.markitdigital.com](https://markets.ft.markitdigital.com/data/commodities/tearsheet/summary?c=COMEX+Gold&utm_source=openai)) Equity markets saw tech‑led volatility midweek, but sentiment steadied into Friday; the late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates continue to pressure duration‑sensitive assets. ([apnews.com](https://apnews.com/article/bba6f0bf9035a6e6b1c4fef3e8230b89?utm_source=openai))",
+  "takeaway": "As of Monday, November 9, 2026, rates remain the dominant pressure driver. The U.S. 10Y Treasury yield is holding around 4.87%–4.88% and the 30Y near ~5.26%. ([apnews.com](https://apnews.com/article/d938f8e6ff42b3706e1d36e6245ec56b?utm_source=openai)) Japan’s 10Y JGB is tracking roughly ~2.68%–2.70% as the BOJ’s normalization path keeps upward pressure on term yields. ([tradingeconomics.com](https://tradingeconomics.com/japan/government-bond-yield?utm_source=openai)) Brent crude traded in the mid-to-upper $90s today, with WTI around ~$90–91 and intraday downside pressure noted. ([markets.ft.markitdigital.com](https://markets.ft.markitdigital.com/data/commodities/tearsheet/historical?c=Brent+Crude+Oil&utm_source=openai)) U.S. high‑yield OAS remains contained near ~3.4%–3.5% (≈340–350 bps) despite elevated risk‑free rates. ([fred.stlouisfed.org](https://fred.stlouisfed.org/data/BAMLH0A0HYM2?utm_source=openai)) Gold is firm around ~$4,080–$4,140/oz. ([markets.ft.markitdigital.com](https://markets.ft.markitdigital.com/data/commodities/tearsheet/historical?c=COMEX+Gold&utm_source=openai)) Equity markets rebounded to start the week as oil eased; the late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates continue to pressure duration‑sensitive assets. ([apnews.com](https://apnews.com/article/d938f8e6ff42b3706e1d36e6245ec56b?utm_source=openai))",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
