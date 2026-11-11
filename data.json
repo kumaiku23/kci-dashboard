@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 10, 2026",
+  "date": "November 11, 2026",
   "composite": {
     "stressScore": 9.3,
     "opportunityScore": 9.1,
@@ -52,7 +52,7 @@
     {
       "label": "Treasury Yields",
       "status": "red",
-      "trend": "up"
+      "trend": "flat"
     },
     {
       "label": "Japanese Yields",
@@ -67,7 +67,7 @@
     {
       "label": "Oil",
       "status": "orange",
-      "trend": "down"
+      "trend": "up"
     },
     {
       "label": "Gold",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Tuesday, November 10, 2026, rates reasserted leadership: the U.S. 10Y Treasury briefly topped 5.0% (~5.00%–5.01%) and the 30Y pushed toward ~5.35%–5.37% after a hotter‑than‑expected CPI print; pressure at the long end remains the core stress driver. ([apnews.com](https://apnews.com/article/ffe205fbc4fddf65c3e8e64e740355b7?utm_source=openai)) Japan’s 10Y JGB is hovering near ~2.72% as normalization keeps term premia elevated. ([japanyieldcurve.com](https://japanyieldcurve.com/?utm_source=openai)) Oil eased, with Brent fluctuating around ~$90–92/bbl intraday. ([markets.ft.markitdigital.com](https://markets.ft.markitdigital.com/data/commodities/tearsheet/historical?c=Brent+Crude+Oil&utm_source=openai)) Gold oscillated around the low‑$4,100s/oz with notable intraday swings. ([finance.yahoo.com](https://finance.yahoo.com/personal-finance/investing/article/gold-price-today-tuesday-november-10-2026-gold-opens-above-4100-for-the-first-time-in-three-weeks-121734382.html?utm_source=openai)) U.S. high‑yield OAS remains contained near ~340–350 bps despite the move in risk‑free rates. ([fred.stlouisfed.org](https://fred.stlouisfed.org/graph/?graph_id=1261063&utm_source=openai)) The late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as higher‑for‑longer rates continue to pressure duration‑sensitive assets.",
+  "takeaway": "As of Wednesday, November 11, 2026, the U.S. bond market was closed for Veterans Day, limiting new signals from Treasuries; yields remain near Tuesday’s levels (10Y ~5.00%–5.01%, 30Y ~5.35%–5.37%). Oil firmed on the day, while gold hovered in the low‑$4,100s/oz. Japan’s 10Y JGB remains elevated near ~2.7% as normalization keeps term premia positive. U.S. high‑yield OAS remains contained around ~340–350 bps despite higher-for-longer risk-free rates. The late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
