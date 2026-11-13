@@ -1,9 +1,9 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 12, 2026",
+  "date": "November 13, 2026",
   "composite": {
-    "stressScore": 9.4,
-    "opportunityScore": 9.1,
+    "stressScore": 9.5,
+    "opportunityScore": 9.2,
     "regime": "Late Cycle",
     "regimeTrend": "Stable",
     "stance": "Patient & Opportunistic",
@@ -12,7 +12,7 @@
   "stressDrivers": [
     {
       "label": "Rates",
-      "value": 9.4
+      "value": 9.5
     },
     {
       "label": "Liquidity",
@@ -20,11 +20,11 @@
     },
     {
       "label": "Credit",
-      "value": 7.7
+      "value": 7.8
     },
     {
       "label": "Consumer",
-      "value": 7.4
+      "value": 7.5
     },
     {
       "label": "Speculation",
@@ -40,12 +40,12 @@
     "stress": [
       8,
       8.5,
-      9.4
+      9.5
     ],
     "opportunity": [
       7.1,
       8.2,
-      9.1
+      9.2
     ]
   },
   "trafficLights": [
@@ -219,21 +219,21 @@
         "label": "Stress / Pressure",
         "d90": 8,
         "d30": 8.5,
-        "today": 9.4,
+        "today": 9.5,
         "goodWhenUp": false
       },
       {
         "label": "Opportunity",
         "d90": 7.1,
         "d30": 8.2,
-        "today": 9.1,
+        "today": 9.2,
         "goodWhenUp": true
       },
       {
         "label": "Treasury Stress",
         "d90": 7.8,
         "d30": 8.8,
-        "today": 9.4,
+        "today": 9.5,
         "goodWhenUp": false
       },
       {
@@ -263,13 +263,13 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 5.11
+        "today": 5.15
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.41
+        "today": 5.43
       },
       {
         "label": "Japan 10Y (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Thursday, November 12, 2026, the U.S. bond market reopened after Veterans Day with the 10Y near ~5.10%–5.12% and the 30Y around ~5.4%. Oil firmed (Brent low‑$90s; WTI mid‑$80s) while gold eased into the mid‑$3,900s/oz. Japan’s 10Y JGB remains elevated near ~2.8%–2.9% as normalization keeps term premia positive. U.S. high‑yield OAS remains contained around ~340–350 bps despite higher‑for‑longer risk‑free rates. The late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
+  "takeaway": "As of Friday, November 13, 2026, Treasury yields pushed higher with the 10Y near ~5.15% and the 30Y around ~5.4%. Oil remains firm (Brent mid‑$90s) while gold holds in the high‑$3,800s to low‑$3,900s/oz. Japan’s 10Y JGB is elevated near ~2.8%–2.9% as normalization keeps term premia positive. U.S. high‑yield OAS remains contained around ~340–350 bps despite higher‑for‑longer risk‑free rates. The late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
