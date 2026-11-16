@@ -283,7 +283,7 @@
         "label": "HY Spreads (bps)",
         "d90": 307,
         "d30": 279,
-        "today": 346
+        "today": 323
       },
       {
         "label": "Private Credit Defaults (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Monday, November 16, 2026, Treasury yields eased slightly but remain elevated with the 10Y near ~5.13% and the 30Y around ~5.47%. Oil pulled back into the low‑$90s (Brent), while gold hovers in the mid‑$3,800s/oz. Japan’s 10Y JGB remains elevated near ~2.9% as normalization keeps term premia positive. U.S. high‑yield OAS remains contained around ~340–350 bps despite higher‑for‑longer risk‑free rates. The late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
+  "takeaway": "As of Monday, November 16, 2026, Treasury yields eased slightly but remain elevated with the 10Y near ~5.13% and the 30Y around ~5.47%. Brent crude is back in the low‑$90s, while gold sits in the mid‑$3,800s/oz. Japan’s 10Y JGB remains elevated near ~2.9% as normalization keeps term premia positive. U.S. high‑yield OAS remains contained around ~320–350 bps despite higher‑for‑longer risk‑free rates. The late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
