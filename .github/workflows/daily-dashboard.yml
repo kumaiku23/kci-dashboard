@@ -226,7 +226,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json history/index.json history/*.json
           git commit -m "Publish dashboard ${{ steps.validate.outputs.iso_date }}"
-          git push origin main
           DASHBOARD_SHA="$(git rev-parse HEAD)"
 
           node scripts/write-heartbeat.mjs \
