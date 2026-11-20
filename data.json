@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 19, 2026",
+  "date": "November 20, 2026",
   "composite": {
     "stressScore": 9.5,
     "opportunityScore": 9.2,
@@ -82,7 +82,7 @@
     {
       "label": "Equity Valuations",
       "status": "red",
-      "trend": "up"
+      "trend": "down"
     },
     {
       "label": "Market Breadth",
@@ -263,19 +263,19 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 5.07
+        "today": 4.93
       },
       {
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.41
+        "today": 5.4
       },
       {
         "label": "Japan 10Y (%)",
         "d90": 2.25,
         "d30": 2.79,
-        "today": 2.93
+        "today": 2.87
       }
     ],
     "credit": [
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Thursday, November 19, 2026, key market pressures are little changed from Wednesday. The U.S. 10Y remains near ~5.06%–5.08% and the 30Y around ~5.41%–5.43%. Brent crude trades near ~$92/bbl, while gold holds in the low‑$3,700s/oz. Japan’s 10Y JGB is steady around ~2.9% as normalization keeps term premia positive. U.S. high‑yield OAS stays contained around ~340–345 bps despite higher‑for‑longer risk‑free rates. No major new shock is identified today; the late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
+  "takeaway": "As of Friday, November 20, 2026, key market pressures remain elevated but little changed from Thursday. The U.S. 10Y slipped toward ~4.92%–4.94% and the 30Y hovered near ~5.40%. Brent crude trades around ~$92/bbl, while gold holds in the low‑$3,700s/oz. Japan’s 10Y JGB is steady near ~2.87%–2.90% as normalization keeps term premia positive. U.S. high‑yield OAS remains contained around ~340–350 bps even as equities saw a sharp AI‑led sell‑off into week‑end. No new systemic shock is identified today; the late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
