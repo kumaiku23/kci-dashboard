@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 23, 2026",
+  "date": "November 24, 2026",
   "composite": {
     "stressScore": 9.5,
     "opportunityScore": 9.2,
@@ -92,7 +92,7 @@
     {
       "label": "HY Credit Spreads",
       "status": "green",
-      "trend": "down"
+      "trend": "up"
     },
     {
       "label": "Liquidity",
@@ -269,7 +269,7 @@
         "label": "US 30Y (%)",
         "d90": 4.77,
         "d30": 5.14,
-        "today": 5.31
+        "today": 5.29
       },
       {
         "label": "Japan 10Y (%)",
@@ -283,7 +283,7 @@
         "label": "HY Spreads (bps)",
         "d90": 307,
         "d30": 279,
-        "today": 320
+        "today": 363
       },
       {
         "label": "Private Credit Defaults (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Monday, November 23, 2026, headline pressures remain elevated with little net change from Friday. The U.S. 10Y hovered near ~4.92%–4.93% and the 30Y eased toward ~5.29%–5.31%. Brent crude slipped into the upper‑$80s/bbl, while gold held in the low‑$3,600s/oz. Japan’s 10Y JGB remains near ~2.86%–2.88% as normalization keeps term premia positive. U.S. high‑yield OAS stayed contained around ~310–320 bps even as equities rebounded sharply on AI‑led headlines. No new systemic shock is identified today; the late‑cycle, fragile regime persists—keep liquidity high and be ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
+  "takeaway": "As of Tuesday, November 24, 2026, headline pressures remain elevated and broadly unchanged from Monday. The U.S. 10Y hovered near ~4.93% and the 30Y around ~5.29%–5.31%. Brent crude traded just under ~$90/bbl, while gold slipped toward the mid‑$3,500s/oz. Japan’s 10Y JGB remains near ~2.84%–2.87% as normalization keeps term premia positive. U.S. high‑yield OAS edged up toward ~360–365 bps, still relatively contained versus history even as mega‑cap/AI leadership remains narrow. No new systemic shock is identified today; the late‑cycle, fragile regime persists—keep liquidity high, watch Wednesday’s PCE (November 25) for rate‑path color, and stay ready for forced‑selling opportunities as duration‑sensitive assets remain under pressure.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
