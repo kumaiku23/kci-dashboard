@@ -1,6 +1,6 @@
 {
   "title": "Weekly Market Pressure Gauge",
-  "date": "November 26, 2026",
+  "date": "November 27, 2026",
   "composite": {
     "stressScore": 9.5,
     "opportunityScore": 9.2,
@@ -263,7 +263,7 @@
         "label": "US 10Y (%)",
         "d90": 4.26,
         "d30": 4.66,
-        "today": 4.85
+        "today": 4.94
       },
       {
         "label": "US 30Y (%)",
@@ -432,6 +432,6 @@
       }
     ]
   },
-  "takeaway": "As of Thursday, November 26, 2026, headline pressures remain elevated and little changed with U.S. markets closed for Thanksgiving. The U.S. 10Y sits near ~4.85% and the 30Y around ~5.24% at Wednesday’s close. Brent crude hovered in the low‑$90s/bbl, while gold held in the mid‑$3,500s/oz. Japan’s 10Y JGB remains elevated around ~2.7%–2.8% as normalization keeps term premia positive. U.S. high‑yield OAS is holding near ~360–365 bps, still relatively contained versus history even as mega‑cap/AI leadership remains narrow. No new systemic shock is identified today; the late‑cycle, fragile regime persists—maintain liquidity, digest Wednesday’s PCE read‑through for the December rate path, and stay ready for forced‑selling opportunities in duration‑sensitive assets.",
+  "takeaway": "As of Friday, November 27, 2026, headline pressures remain elevated with U.S. markets on an early Black Friday schedule (equities closed 1:00 p.m. ET; bonds 2:00 p.m. ET). The U.S. 10Y rose toward ~4.94% versus ~4.85% late Wednesday, and the 30Y hovered near ~5.24%. Brent crude traded in the low‑to‑mid‑$90s/bbl, while gold rebounded into the upper‑$3,600s/oz. Japan’s 10Y JGB remains elevated around ~2.7%–2.8% as normalization keeps term premia positive. U.S. high‑yield OAS is holding near ~360–375 bps, still relatively contained versus history even as mega‑cap/AI leadership remains narrow. No new systemic shock is identified today; the late‑cycle, fragile regime persists—maintain liquidity, digest Wednesday’s PCE read‑through for the December rate path, and stay ready for forced‑selling opportunities in duration‑sensitive assets.",
   "disclosure": "This report is provided for informational and educational purposes only and does not constitute investment advice, a recommendation, or an offer or solicitation to buy or sell any security or financial instrument. The scores, signals, ratings, and opinions expressed reflect subjective judgment as of the date shown, are subject to change without notice, and are not guaranteed as to accuracy, completeness, or timeliness. Data is drawn from sources believed to be reliable but has not been independently verified. Past performance is not indicative of future results. All investments involve risk, including the possible loss of principal. Readers should conduct their own due diligence and consult a qualified financial, legal, or tax professional before making any investment decision. Kuma Capital Investments, Inc. accepts no liability for any loss or damage arising from the use of this material."
 }
